@@ -4,7 +4,12 @@
 .httr-oauth
 .DS_Store
 .quarto
-scRNA/*
+scRNA/cellbender/*
+scRNA/count/*
+scRNA/results/*
+scRNA/objects/*
+scRNA/02_cellbender/*
+scRNA/03_R_analysis/*
 bulkRNA/.snakemake/*
 bulkRNA/aligned/*
 bulkRNA/rawQC/*
