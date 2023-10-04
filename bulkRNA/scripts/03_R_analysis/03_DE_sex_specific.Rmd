@@ -1,0 +1,604 @@
+---
+title: "Aducanumab Mice"
+subtitle: "Sex Specific Differential Expression"
+author: "Kennedi Todd"
+date: "09/25/2023"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Setup
+## Working directory
+```{r setup}
+knitr::opts_knit$set(root.dir = ".")
+```
+
+## Libraries
+```{r load_packages, message=FALSE, warning=FALSE}
+library(ComplexUpset) # intersection_size()
+library(edgeR) # for reading DGEList
+library(ggplot2) # ggplot2()
+library(limma) # for reading DGEList
+library(ggrepel) # geom_text_repel()
+library(UpSetR) # fromList()
+```
+
+## User defined variables
+```{r set_variables}
+treatment <- c("IgG","Adu")
+treatment_colors <- c("orange","cornflowerblue")
+sex_colors <- c("chartreuse2","purple")
+```
+
+## Save functions
+```{r save_functions}
+saveToPDF <- function(...) {
+    d = dev.copy(pdf,...)
+    dev.off(d)
+}
+```
+
+## Load data
+```{r read_object}
+dge.filtered.norm <- readRDS("../../rObjects/DGEList_filtered_normalized.rds")
+```
+
+# Voom before covariates
+## Design matrix
+```{r design_matrix}
+treatment_week_sex <- interaction(dge.filtered.norm$samples$treatment_week_sex)
+design <- model.matrix(~ 0 + treatment_week_sex)
+design.names <- gsub("treatment_week_sex", "", colnames(design))
+colnames(design) <- design.names
+design
+```
+
+## Quality weights
+```{r voom}
+# voom transform counts
+v <- voomWithQualityWeights(dge.filtered.norm,
+                            design,
+                            plot = TRUE)
+
+# save
+#path <- "../../results/postfiltering_QC/voom_gene_mean_var_weights"
+#saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
+
+# fits linear model for each gene given a series of arrays
+fit <- lmFit(v, design)
+
+# contrast design for differential expression
+contrasts <- makeContrasts(
+  contrasts = c("Adu.3.M - IgG.3.M", "Adu.3.F - IgG.3.F",
+                "Adu.5.M - IgG.5.M", "Adu.5.F - IgG.5.F",
+                "Adu.19.M - IgG.19.M", "Adu.19.F - IgG.19.F",
+                "Adu.34.M - IgG.34.M", "Adu.34.F - IgG.34.F",
+                "IgG.34.F - IgG.3.F", "IgG.34.M - IgG.3.M",
+                "Adu.34.F - Adu.19.F", "Adu.34.M - Adu.19.M",
+                "IgG.34.F - IgG.19.F", "IgG.34.M - IgG.19.M"),
+  levels = design.names)
+head(contrasts)
+
+# save contrast names
+allComparisons <- colnames(contrasts)
+allComparisons # check
+
+# run contrast analysis
+vfit <- contrasts.fit(fit, contrasts = contrasts)
+
+# Compute differential expression based on the empirical Bayes moderation of the
+# standard errors towards a common value.
+veBayesFit <- eBayes(vfit)
+plotSA(veBayesFit, main = "Final Model: Mean-variance Trend")
+
+# save
+#path <- "../../results/postfiltering_QC/voom_gene_final_mean_var"
+#saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
+```
+
+## Voom MDS Plot
+### Sex
+```{r MDS_plot_colored_by_sex, warning=FALSE}
+  # set colors and get data
+sex_color <- sex_colors[v$targets$sex]
+names <- v$targets$sample
+
+# loop through dimensions and top genes
+dims <- list(c(1,2),c(2,3),c(3,4),c(4,5))
+topGenes <- c(100,500)
+
+for (dim in dims) {
+  
+  for (numGenes in topGenes) {
+      
+    par(bg = 'white')
+  
+    # plot MDS
+    plotMDS(
+      v, 
+      top = numGenes, 
+      labels = names,
+      cex = 1, 
+      dim.plot = dim, 
+      plot = TRUE, 
+      col = sex_color
+    )
+    
+    title(paste0("Filterd & Normalized: Top ", numGenes, ", Log2(CPM)"))
+    
+    legend(
+      "topleft",
+      legend = unique(v$targets$sex),
+      pch = 16,
+      col = sex_colors,
+      cex = 1
+    )
+    
+    # save
+    dimTitle <- as.character(dim)
+    path <- paste0("../../results/postfiltering_QC/MDS_filtered_normalized_", 
+                   "top_", numGenes, "_",
+                   "dim", as.character(dim)[1], "&", as.character(dim[2]), "_colored_by_sex")
+    saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
+  }
+}
+
+remove(data)
+```
+
+### Group
+```{r MDS_plot_colored_by_group}
+# set colors and get data
+group_color <- treatment_colors[v$targets$treatment]
+names <- v$targets$sample
+
+# loop through dimensions and top genes
+dims <- list(c(1,2),c(2,3),c(3,4),c(4,5))
+topGenes <- c(100,500)
+
+for (dim in dims) {
+  
+  for (numGenes in topGenes) {
+    
+    par(bg = 'white')
+    
+    # plot MDS
+    plotMDS(
+      v, 
+      top = numGenes, 
+      labels = names,
+      cex = 1, 
+      dim.plot = dim, 
+      plot = TRUE, 
+      col = group_color
+    )
+    
+    title(paste0("Filtered & Normalized: Top ", numGenes, ", Log2(CPM)"))
+    
+    legend(
+      "topleft",
+      legend = unique(v$targets$treatment),
+      pch = 16,
+      col = unique(group_color),
+      cex = 1
+    )
+    
+    # save
+    dimTitle <- as.character(dim)
+    path <- paste0("../../results/postfiltering_QC/MDS_filtered_normalized_", 
+                   "top_", numGenes, "_",
+                   "dim", as.character(dim)[1], "&", as.character(dim[2]), "_colored_by_group")
+    saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
+  }
+}
+
+remove(dims)
+```
+
+# Differential Expression
+## Number of DEGs
+Identify number of differentially expressed genes.
+```{r decide_tests}
+pval <- 0.05
+
+sumTable <- 
+  summary(decideTests(
+    vfit,  # object
+    adjust.method = "BH", # by default the method = "separate"
+    p.value = pval,
+    lfc = 0  # numeric, minimum absolute log2-fold change required
+  ))
+
+print(paste0("FDRq < ", pval))
+sumTable
+
+write.table(sumTable, 
+            paste0("../../results/DEGs_sex_specific/DEGs_comparison_FDRq_", 
+                   format(pval, nsmall = 2),".tsv"), 
+            quote = FALSE, 
+            sep = "\t")
+```
+
+## Output DEG tables
+```{r output_DEG_tables}
+coef <- 1
+
+for (i in allComparisons) {
+  # title 
+  title <- gsub(" ", "_", i)
+  title <- gsub("-","vs", title)
+  
+  
+  # p < 1, log2fc > 0 ----------------------------------------------------------
+  vTopTableAll <-
+    topTable(
+      veBayesFit, 
+      coef = coef,  
+      n = Inf, 
+      p.value = 1,
+      lfc = 0 
+    )
+  #output as txt file
+  path <- paste("../../results/DEGs_sex_specific/DEGs_", title,"_FDRq_1.00.tsv", sep = "") 
+  write.table(
+    vTopTableAll,
+    path,
+    sep = "\t",
+    row.names = FALSE,
+    quote = FALSE
+  )
+  
+  # p < 0.05, log2fc > 0 -------------------------------------------------------
+  vTopTable1 <-
+    topTable( 
+      veBayesFit,  
+      coef = coef,  
+      n = Inf, 
+      p.value = 0.05,
+      lfc = 0
+    )
+  path <- paste("../../results/DEGs_sex_specific/DEGs_",title,"_FDRq_0.05.tsv", sep = "") 
+  write.table(
+    vTopTable1,
+    path,
+    sep = "\t",
+    row.names = FALSE,
+    quote = FALSE
+  )
+  
+  # p < 0.1, log2fc > 0 -------------------------------------------------------
+  vTopTable2 <-
+    topTable( 
+      veBayesFit,  
+      coef = coef,  
+      n = Inf, 
+      p.value = 0.10,
+      lfc = 0
+    )
+  path <- paste("../../results/DEGs_sex_specific/DEGs_",title,"_FDRq_0.10.tsv", sep = "") 
+  write.table(
+    vTopTable2,
+    path,
+    sep = "\t",
+    row.names = FALSE,
+    quote = FALSE
+  )
+  
+  # increment -----------------------------------------------------------------
+  coef <- coef + 1
+}
+```
+
+## Volcanos
+```{r volcano_plot, message=FALSE, eval=FALSE}
+# set variables
+thresh <- 0.1
+
+# get file list
+files <- list.files(paste0("../../results/DEGs_sex_specific"))
+keep <- grep("_1.00.tsv", files)
+files <- files[keep]
+files <- paste0("../../results/DEGs_sex_specific/",files)
+
+for (i in files) {
+  
+  # read DEG file
+  data <- read.delim(i,sep = "\t")
+  
+  # assign colors
+  color_values <- vector()
+  max <- nrow(data)
+  for(row in 1:max){
+    if (data$adj.P.Val[row] < thresh){
+      if (data$logFC [row] > 0){
+        color_values <- c(color_values, 1) # 1 when logFC > 0 and FDRq < thresh
+      }
+      else if (data$logFC[row] < 0){
+        color_values <- c(color_values, 2) # 2 when logFC < 0 and FDRq < thresh
+      }
+    }
+    else{
+      color_values <- c(color_values, 3) # 3 when FDRq >= thresh
+    }
+  }
+  data$color_adjpval <- factor(color_values)
+  
+ # comparison name
+ comparison <- gsub("../../results/DEGs_sex_specific/DEGs_", "", i)
+ comparison <- gsub("_FDRq_1.00.tsv","",comparison)
+    
+ # plot only if there are DEGs with adj.P.Val < thresh
+ num <- subset(data, adj.P.Val < thresh)
+ num <- nrow(num)
+ if(num != 0) {
+   
+    # subset genes to label
+    up <- data[data$color_adjpval == 1,]
+    up15 <- up[1:15,]
+    down <- data[data$color_adjpval == 2,]
+    down15 <- down[1:15,]
+      
+    # set manual colors
+    if (!1 %in% unique(data$color_adjpval)) {
+      my_colors <- c("blue","gray")
+    } else if (!2 %in% unique(data$color_adjpval)) {
+      my_colors <- c("red","gray")
+    } else if (!1 %in% unique(data$color_adjpval) && !2 %in% unique(data$color_adjpval)) {
+      my_colors <- c("gray")
+    } else {
+      my_colors <- c("red","blue","gray")
+    }
+      
+    # set significance threshold
+    hadjpval <- (-log10(max(data$P.Value[data$adj.P.Val < thresh], na.rm=TRUE)))
+
+    # plot
+    p <-
+      ggplot(data = data, 
+             aes(x = logFC,  # x-axis is logFC
+                 y = -log10(P.Value),  # y-axis will be -log10 of P.Value
+                 color = color_adjpval)) +  # color is based on factored color column
+      geom_point(alpha = 0.8, size = 2) +  # create scatterplot, alpha makes points transparent
+      theme_bw() +  # set color theme
+      theme(legend.position = "none") +  # no legend
+      scale_color_manual(values = my_colors) +  # set factor colors
+      labs(
+        title = "", # no main title
+        x = expression(log[2](FC)), # x-axis title
+         y = expression(-log[10] ~ "(" ~ italic("p") ~ "-value)") # y-axis title
+      ) +
+      theme(axis.title.x = element_text(size = 15),
+            axis.text.x = element_text(size = 15)) +
+      theme(axis.title.y = element_text(size = 15),
+            axis.text.y = element_text(size = 15)) +
+      theme(plot.title = element_text(size = 15)) +
+      geom_hline(yintercept = hadjpval,  #  horizontal line
+                         colour = "#000000",
+                         linetype = "dashed") +
+      ggtitle(paste0(comparison, ", adj.P.Val < ", thresh)) +
+      geom_text_repel(data = up15,
+                      aes(x = logFC, y= -log10(P.Value), label = gene_name), 
+                      size = 5,
+                      color = "maroon", 
+                      fontface="italic",
+                      max.overlaps = getOption("ggrepel.max.overlaps", default = 30)
+                      ) +
+      geom_text_repel(data = down15,
+                      aes(x = logFC, y= -log10(P.Value), label = gene_name), 
+                      color = "navyblue", 
+                      size = 5,
+                      fontface="italic",
+                      max.overlaps = getOption("ggrepel.max.overlaps", default = 30)
+                      )
+     p
+      
+    # save
+    path <- paste0("../../results/DEGs_sex_specific/volcano_", comparison, "_FDRq_", 
+                   format(thresh, nsmall = 2), ".pdf")
+    pdf(path, height = 8, width = 8)
+    print(p)
+    dev.off()
+  }
+} # end loop through variables
+```
+
+## Upset plots
+### Female
+```{r upset_plots,eval=FALSE}
+# user defined variables
+thresh <- 0.05
+
+# read tables
+week3 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.3.F_vs_IgG.3.F_FDRq_1.00.tsv", 
+                    sep = "\t", header = TRUE)
+rownames(week3) <- week3$gene_name_unique
+week5 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.5.F_vs_IgG.5.F_FDRq_1.00.tsv", 
+                    sep = "\t", header = TRUE)
+rownames(week5) <- week5$gene_name_unique
+week19 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.19.F_vs_IgG.19.F_FDRq_1.00.tsv",
+                     sep = "\t", header = TRUE)
+rownames(week19) <- week19$gene_name_unique
+week34 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.34.F_vs_IgG.34.F_FDRq_1.00.tsv", 
+                     sep = "\t", header = TRUE)
+rownames(week34) <- week34$gene_name_unique
+
+# filter tables
+week3 <- week3[week3$adj.P.Val < thresh,]
+week5 <- week5[week5$adj.P.Val < thresh,]
+week19 <- week19[week19$adj.P.Val < thresh,]
+week34 <- week34[week34$adj.P.Val < thresh,]
+
+# Subset lists
+week3_up <- subset(week3$gene_name_unique, week3$logFC > 0)
+week3_down <- subset(week3$gene_name_unique, week3$logFC < 0)
+week5_up <- subset(week5$gene_name_unique, week5$logFC > 0)
+week5_down <- subset(week5$gene_name_unique, week5$logFC < 0)
+week19_up <- subset(week19$gene_name_unique, week19$logFC > 0)
+week19_down <- subset(week19$gene_name_unique, week19$logFC < 0)
+week34_up <- subset(week34$gene_name_unique, week34$logFC > 0)
+week34_down <- subset(week34$gene_name_unique, week34$logFC < 0)
+list_input <- list("Adu vs IgG Females Week 3 Up-regulated" = week3_up,
+                   "Adu vs IgG Females Week 5 Up-regulated" = week5_up,
+                   "Adu vs IgG Females Week 19 Up-regulated" = week19_up,
+                   "Adu vs IgG Females Week 34 Up-regulated" = week34_up,
+                   "Adu vs IgG Females Week 3 Down-regulated" = week3_down,
+                   "Adu vs IgG Females Week 5 Down-regulated" = week5_down,
+                   "Adu vs IgG Females Week 19 Down-regulated" = week19_down,
+                   "Adu vs IgG Females Week 34 Down-regulated" = week34_down)
+data <- fromList(list_input)
+  
+# store names
+names <- colnames(data)
+  
+# plot
+upset_gene <- ComplexUpset::upset(data, 
+				  names,
+				  set_sizes=(
+					upset_set_size()
+					+ geom_text(aes(label=..count..), hjust=1.1, stat='count')
+					+ expand_limits(y=1500)),
+				  queries = list(upset_query("Adu vs IgG Females Week 3 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Females Week 5 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Females Week 19 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Females Week 34 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Females Week 3 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Females Week 5 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Females Week 19 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Females Week 34 Down-regulated", fill = "blue")),
+				  base_annotations = list('Intersection size' = (
+					intersection_size(bar_number_threshold=1, width=0.5)
+					+ scale_y_continuous(expand=expansion(mult=c(0, 0.05)),limits = c(0,1000)) # space on top
+					+ theme(
+						  # hide grid lines
+						  panel.grid.major=element_blank(),
+						  panel.grid.minor=element_blank(),
+						  # show axis lines
+						  axis.line=element_line(colour='black')))),
+				  stripes = upset_stripes(
+					geom=geom_segment(size=12),  # make the stripes larger
+					colors=c('grey95', 'white')),
+				  # to prevent connectors from getting the colorured
+				  # use `fill` instead of `color`, together with `shape='circle filled'`
+				  matrix = intersection_matrix(
+					geom=geom_point(
+					  shape='circle filled',
+					  size=3,
+					  stroke=0.45)),
+				  sort_sets=FALSE,
+				  sort_intersections='descending'
+				)
+
+upset_gene <- upset_gene + ggtitle(paste0("adj_p_val < ", thresh))
+
+# save
+pdf(paste0("../../results/DEGs_sex_specific/upset_plot_females_FDRq_",
+           format(thresh, nsmall = 2),
+           ".pdf"), 
+    height = 6, width = 8)
+upset_gene
+```
+
+### Male
+```{r upset_plots,eval=FALSE}
+# user defined variables
+thresh <- 0.1
+
+# read tables
+week3 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.3.M_vs_IgG.3.M_FDRq_1.00.tsv", 
+                    sep = "\t", header = TRUE)
+rownames(week3) <- week3$gene_name_unique
+week5 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.5.M_vs_IgG.5.M_FDRq_1.00.tsv", 
+                    sep = "\t", header = TRUE)
+rownames(week5) <- week5$gene_name_unique
+week19 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.19.M_vs_IgG.19.M_FDRq_1.00.tsv",
+                     sep = "\t", header = TRUE)
+rownames(week19) <- week19$gene_name_unique
+week34 <- read.table("../../results/DEGs_sex_specific/DEGs_Adu.34.M_vs_IgG.34.M_FDRq_1.00.tsv", 
+                     sep = "\t", header = TRUE)
+rownames(week34) <- week34$gene_name_unique
+
+# filter tables
+week3 <- week3[week3$adj.P.Val < thresh,]
+week5 <- week5[week5$adj.P.Val < thresh,]
+week19 <- week19[week19$adj.P.Val < thresh,]
+week34 <- week34[week34$adj.P.Val < thresh,]
+
+# Subset lists
+week3_up <- subset(week3$gene_name_unique, week3$logFC > 0)
+week3_down <- subset(week3$gene_name_unique, week3$logFC < 0)
+week5_up <- subset(week5$gene_name_unique, week5$logFC > 0)
+week5_down <- subset(week5$gene_name_unique, week5$logFC < 0)
+week19_up <- subset(week19$gene_name_unique, week19$logFC > 0)
+week19_down <- subset(week19$gene_name_unique, week19$logFC < 0)
+week34_up <- subset(week34$gene_name_unique, week34$logFC > 0)
+week34_down <- subset(week34$gene_name_unique, week34$logFC < 0)
+list_input <- list("Adu vs IgG Males Week 3 Up-regulated" = week3_up,
+                   "Adu vs IgG Males Week 5 Up-regulated" = week5_up,
+                   "Adu vs IgG Males Week 19 Up-regulated" = week19_up,
+                   "Adu vs IgG Males Week 34 Up-regulated" = week34_up,
+                   "Adu vs IgG Males Week 3 Down-regulated" = week3_down,
+                   "Adu vs IgG Males Week 5 Down-regulated" = week5_down,
+                   "Adu vs IgG Males Week 19 Down-regulated" = week19_down,
+                   "Adu vs IgG Males Week 34 Down-regulated" = week34_down)
+data <- fromList(list_input)
+  
+# store names
+names <- colnames(data)
+  
+# plot
+upset_gene <- ComplexUpset::upset(data, 
+				  names,
+				  set_sizes=(
+					upset_set_size()
+					+ geom_text(aes(label=..count..), hjust=1.1, stat='count')
+					+ expand_limits(y=350)),
+				  queries = list(upset_query("Adu vs IgG Males Week 3 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Males Week 5 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Males Week 19 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Males Week 34 Up-regulated", fill = "red"),
+								 upset_query("Adu vs IgG Males Week 3 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Males Week 5 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Males Week 19 Down-regulated", fill = "blue"),
+								 upset_query("Adu vs IgG Males Week 34 Down-regulated", fill = "blue")),
+				  base_annotations = list('Intersection size' = (
+					intersection_size(bar_number_threshold=1, width=0.5)
+					+ scale_y_continuous(expand=expansion(mult=c(0, 0.05)),limits = c(0,300)) # space on top
+					+ theme(
+						  # hide grid lines
+						  panel.grid.major=element_blank(),
+						  panel.grid.minor=element_blank(),
+						  # show axis lines
+						  axis.line=element_line(colour='black')))),
+				  stripes = upset_stripes(
+					geom=geom_segment(size=12),  # make the stripes larger
+					colors=c('grey95', 'white')),
+				  # to prevent connectors from getting the colorured
+				  # use `fill` instead of `color`, together with `shape='circle filled'`
+				  matrix = intersection_matrix(
+					geom=geom_point(
+					  shape='circle filled',
+					  size=3,
+					  stroke=0.45)),
+				  sort_sets=FALSE,
+				  sort_intersections='descending'
+				)
+
+upset_gene <- upset_gene + ggtitle(paste0("adj_p_val < ", thresh))
+
+# save
+pdf(paste0("../../results/DEGs_sex_specific/upset_plot_males_FDRq_",
+           format(thresh, nsmall = 2),
+           ".pdf"), 
+    height = 6, width = 8)
+upset_gene
+```
+
+
+```{r}
+sessionInfo()
+```

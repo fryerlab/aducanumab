@@ -1,0 +1,571 @@
+---
+title: "Aducanumab Mice"
+subtitle: "Filtering and Normalization"
+author: "Kennedi Todd"
+date: "09/26/2023"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Setup
+## Working directory
+```{r setup}
+knitr::opts_knit$set(root.dir = ".")
+```
+
+## Libraries
+```{r libraries, message=FALSE, warning=FALSE}
+library(caret)              # createDataPartition()
+library(dplyr)              # left_join()
+library(edgeR)              # DGEList()
+library(limma)              # plotMDS()
+library(ggrepel)            # geom_text_repel()
+library(ggplot2)            # ggplot()
+library(glmnet)             # cv.glmnet()
+library(gplots)             # heatmap.2()
+library(grDevices)          # colorRampPalette()
+library(gridExtra)          # grid.arrange()
+library(philentropy)        # JSD()
+library(rtracklayer)        # import()
+library(stringr)            # str_match()
+```
+
+## User defined variables
+```{r set_variables}
+treatment <- c("IgG","Adu")
+treatment_colors <- c("orange","cornflowerblue")
+sex_colors <- c("chartreuse2","purple")
+ann <- "/research/labs/neurology/fryer/projects/references/mouse/refdata-gex-mm10-2020-A/genes/genes.gtf"
+```
+
+## Save functions
+These functions with help simultaneously save plots as a png, pdf, and tiff 
+file.
+```{r save_functions}
+saveToPDF <- function(...) {
+    d = dev.copy(pdf,...)
+    dev.off(d)
+}
+```
+
+# DGE object
+## Read data
+```{r read_data}
+# read in counts data
+counts <- read.delim(paste0("../../featureCounts/gene_counts_matrix.tsv"),
+                     header = TRUE,
+                     row.names = 1,
+                     sep = "\t")
+
+# read metadata
+meta <- read.delim("../../refs/metadata.tsv",
+                   header = TRUE,
+                   sep = "\t")
+
+# match counts columns to meta rows
+counts.names <- gsub("X", "", colnames(counts))
+meta <- meta[order(meta$treatment, decreasing = TRUE),]
+meta.names <- str_match(meta$filename, "[0-9]+_[AduIgG_R]+_S[0-9]+")[,1]
+counts.indices <- match(meta.names, counts.names)
+counts <- counts[,counts.indices]
+all.equal(meta.names, gsub("X", "", colnames(counts)))
+colnames(counts) <- meta$sample
+
+# read in annotation file
+if (file.exists("../../rObjects/annotation.rds")) {
+  genes <- readRDS("../../rObjects/annotation.rds")
+} else {
+  genes <- rtracklayer::import(ann)
+  genes <- as.data.frame(genes)
+  genes <- genes[genes$type == "gene",]
+  all.equal(rownames(counts), genes$gene_id) # check that rows match
+  saveRDS(genes, "../../rObjects/annotation.rds")
+}
+
+# read exonic length information
+exonic.length <- read.delim("../../featureCounts/summed_exons.tsv",
+                            header = TRUE,
+                            sep = "\t")
+
+# add exonic length to genes
+all.equal(rownames(counts), genes$gene_id, exonic.length$gene_id)
+genes <- left_join(genes, exonic.length, by = "gene_id")
+remove(exonic.length)
+
+# rownames - gene_id to gene_name
+all.equal(rownames(counts), genes$gene_id)
+rownames(counts) <- make.unique(genes$gene_name)
+genes$gene_name_unique <- rownames(counts)
+```
+
+## Create object
+```{r DGE_object}
+# create object
+dge <- DGEList(counts = counts,
+               genes = genes,
+               samples = meta)
+
+# cleanup 
+remove(counts, meta, genes)
+
+dge$samples$group <- paste0(dge$samples$treatment, ".", dge$samples$week)
+dge$samples$treatment_week <- dge$samples$group
+dge$samples$treatment_week_sex <- paste0(dge$samples$treatment, ".",
+                                         dge$samples$week, ".",
+                                         dge$samples$sex)
+dge$samples$treatment <- factor(dge$samples$treatment, levels = treatment)
+dge$samples$sex <- factor(dge$samples$sex, levels = c("F","M"))
+```
+
+## Remove MT genes
+```{r remove_MT_genes}
+dim(dge)
+removeMT <- dge$genes$seqnames != "chrM"  # true when NOT MT
+dge <- dge[removeMT,,keep.lib.sizes = FALSE]
+dim(dge)
+```
+
+## Keep protein coding genes
+```{r remove_MT_genes}
+dim(dge)
+keep <- dge$genes$gene_type == "protein_coding"
+dge <- dge[keep,,keep.lib.sizes = FALSE]
+dim(dge)
+```
+
+## Remove sample
+```{r remove_sample}
+dim(dge)
+dge <- dge[,!colnames(dge) %in% "Adu.34.F.241"]
+dim(dge)
+```
+
+# QC: Raw
+## Bargraph
+```{r cpm_bar_graph}
+# user input
+goi <- c("Uty")
+
+# plot and save
+for (i in 1:length(goi)) {
+
+  # extract data
+  df <- as.data.frame(cpm(dge$counts))
+  df <- df[goi[i],]
+  df <- reshape2::melt(df)
+  colnames(df) <- c("sample","CPM")
+  df$sample <- as.character(df$sample)
+  df$sex <- dge$samples$sex
+  df <- df[order(df$sex),]
+  
+  # plot
+  p <- ggplot(data = df, mapping = aes(x = sample, y = CPM, fill = sex)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title = paste("Raw:", goi[i], "CPM"), x = "Sample", y = "CPM") +
+    scale_x_discrete(limits = df$sample)
+  print(p)
+  
+  # save
+  path <- paste0("../../results/prefiltering_QC/", goi[i], "_bar_graph_raw")
+  saveToPDF(paste0(path, ".pdf"), width = 10, height = 4)
+  dev.off()
+}
+remove(df,p)
+```
+
+## JSD heatmap
+This portion won't display in the R Markdown pdf; the margins are too large.
+The pdf and png file can only be saved one at a time.
+```{r jsd_heatmap, eval=FALSE}
+# save
+path <- paste0("../../results/prefiltering_QC/JSD_heatmap")
+pdf(paste0(path,".pdf"), width = 12, height = 12, pointsize = 8)
+
+# set heatmap colors and names
+colors <- c("blue","skyblue","white") # set heatmap color scale
+colors <- colorRampPalette(colors)(100) # make it a gradient
+sample_treatment_color <- treatment_colors[dge$samples$treatment]
+names <- dge$samples$sample
+
+# find JSD
+data <- JSD(t(cpm(dge$counts)), est.prob = "empirical")
+colnames(data) <- names
+rownames(data) <- names
+round.data <- round(data, digits = 4) # round 2 decimal places
+
+# plot heatmap
+heatmap <- heatmap.2(
+  round.data,
+  trace = "none",
+  colCol = sample_treatment_color,
+  colRow = sample_treatment_color,
+  symm = TRUE,
+  col = colors,
+  cellnote = round.data,
+  notecex = 0.5,
+  dendrogram = "none",
+  notecol = "black",
+  key.title = "Color Key",
+  srtCol = 65,
+  margins = c(12,12),
+  keysize = 0.2)
+
+remove(heatmap,round.data,data)
+```
+
+## MDS
+- MDS = multidimensional scaling \
+- limma::plotMDS() will produce a PCoA or PCA plot \
+- By default, gene.selection = "pairwise" \
+- If gene.selection = "pairwise" and top is < nrow(x) then a PCoA plot is produced \
+- Distances on the plot represent the leading log2 fold-changes \
+- The leading log fold-change between a pair of samples is the root-mean-square average of the top largest log2 fold-changes between those two samples \
+### Sex
+```{r mds_prefiltering, warning=FALSE}
+  # set colors and get data
+data <- cpm(dge$counts, log = TRUE)
+sex_color <- sex_colors[dge$samples$sex]
+names <- dge$samples$sample
+
+# loop through dimensions and top genes
+dims <- list(c(1,2),c(2,3),c(3,4),c(4,5))
+topGenes <- c(100,500)
+
+for (dim in dims) {
+  
+  for (numGenes in topGenes) {
+      
+    par(bg = 'white')
+  
+    # plot MDS
+    plotMDS(
+      data, 
+      top = numGenes, 
+      labels = names,
+      cex = 1, 
+      dim.plot = dim, 
+      plot = TRUE, 
+      col = sex_color
+    )
+    
+    title(paste0("Raw: Top ", numGenes, ", Log2(CPM)"))
+    
+    legend(
+      "bottomleft",
+      legend = unique(dge$samples$sex),
+      pch = 16,
+      col = sex_colors,
+      cex = 1
+    )
+    
+    # save
+    dimTitle <- as.character(dim)
+    path <- paste0("../../results/prefiltering_QC/MDS_raw_", 
+                   "top_", numGenes, "_",
+                   "dim", as.character(dim)[1], "&", as.character(dim[2]), "_colored_by_sex")
+    saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
+  }
+}
+
+remove(data)
+```
+
+### Treatment
+```{r}
+# set colors and get data
+data <- cpm(dge$counts, log = TRUE)
+sample_color <- treatment_colors[dge$samples$treatment]
+names <- dge$samples$mayo_id
+
+# loop through dimensions and top genes
+dims <- list(c(1,2),c(2,3),c(3,4),c(4,5))
+topGenes <- c(100,500)
+
+for (dim in dims) {
+  
+  for (numGenes in topGenes) {
+    
+    par(bg = 'white')
+    
+    # plot MDS
+    plotMDS(
+      data, 
+      top = numGenes, 
+      labels = names,
+      cex = 1, 
+      dim.plot = dim, 
+      plot = TRUE, 
+      col = sample_color
+    )
+    
+    title(paste0("Raw: Top ", numGenes, ", Log2(CPM)"))
+    
+    legend(
+      "topleft",
+      legend = unique(dge$samples$treatment),
+      pch = 16,
+      col = unique(sample_color),
+      cex = 1
+    )
+    
+    # save
+    dimTitle <- as.character(dim)
+    path <- paste0("../../results/prefiltering_QC/MDS_raw_", 
+                   "top_", numGenes, "_",
+                   "dim", as.character(dim)[1], "&", as.character(dim[2]), "_colored_by_treatment")
+    saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
+  }
+}
+
+remove(data,dims)
+```
+
+```{r cpm_fpkm_tpm_prefiltering}
+# CPM, Counts Per Million
+# normalize by sequencing depth
+cpm <- cpm(dge)
+path <- paste0("../../results/counts/CPM_prefiltering.tsv")
+write.table(cpm, path, quote = FALSE, sep = "\t")
+
+# FPKM, Fragments Per Kilobase Million
+# normalize by sequencing depth and then length
+exonic.length <- dge$genes$exonic_length
+exonic.length.kb <- exonic.length / 1000
+fpkm <- cpm / exonic.length.kb
+fpkm <- sweep(cpm, 1, exonic.length.kb, FUN = '/') # 1 = row
+path <- paste0("../../results/counts/FPKM_prefiltering.tsv")
+write.table(fpkm, path, quote = FALSE, sep = "\t")
+
+# TPM, Transcripts Per Kilobase Million
+# normalize by length and then sequencing depth
+counts <- dge$counts
+fpk <- counts / exonic.length.kb
+sum.col <- colSums(fpk) / 1000000
+tpm <- sweep(fpk, 2, sum.col, FUN = '/') # 2 = column
+path <- paste0("../../results/counts/TPM_prefiltering.tsv")
+write.table(tpm, path, quote = FALSE, sep = "\t")
+
+remove(counts,cpm,fpk,fpkm,tpm)
+```
+
+
+## CPM, FPKM, TPM
+```{r cpm_fpkm_tpm}
+# CPM, Counts Per Million
+# normalize by sequencing depth
+cpm <- cpm(dge)
+path <- paste0("../../results/counts/CPM_prefiltering.tsv")
+write.table(cpm, path, quote = FALSE, sep = "\t")
+
+# FPKM, Fragments Per Kilobase Million
+# normalize by sequencing depth and then length
+exonic.length <- dge$genes$exonic_length
+exonic.length.kb <- exonic.length / 1000
+fpkm <- cpm / exonic.length.kb
+fpkm <- sweep(cpm, 1, exonic.length.kb, FUN = '/') # 1 = row
+path <- paste0("../../results/counts/FPKM_prefiltering.tsv")
+write.table(fpkm, path, quote = FALSE, sep = "\t")
+
+# TPM, Transcripts Per Kilobase Million
+# normalize by length and then sequencing depth
+counts <- dge$counts
+fpk <- counts / exonic.length.kb
+sum.col <- colSums(fpk) / 1000000
+tpm <- sweep(fpk, 2, sum.col, FUN = '/') # 2 = column
+path <- paste0("../../results/counts/TPM_prefiltering.tsv")
+write.table(tpm, path, quote = FALSE, sep = "\t")
+
+remove(counts,cpm,fpk,fpkm,tpm)
+```
+
+
+# Filtering and normalization
+## Lowly expressed genes
+
+```{r filter_genes_by_expr}
+start <- dim(dge)[1]
+
+cpm <- as.data.frame(cpm(dge))
+cpm <- as.data.frame(cpm >= 1)
+cpm$rsums <- rowSums(cpm)
+keep <- cpm$rsums >= 4
+dge.filtered <- dge[keep,,keep.lib.sizes = FALSE]
+
+end <- dim(dge.filtered)[1]
+print(paste(start - end, "genes removed and", end, "genes leftover."))
+```
+
+## TMM
+Convert observed library sizes into effective library sizes. To obtain effective
+library sizes, the current library sizes are multiplied by a normalization factor
+which we find using the trimmed mean of M values (TMM) method. The TMM method
+trims observations from each tail of the distribution of log-rations (M-values). 
+By default this method uses a sumTrim of 0.05 and a logratioTrim of 0.3.
+```{r TMM_normalize}
+# Normalize by trimmed mean of M-values
+dge.filtered.norm <- calcNormFactors(dge.filtered, method = "TMM")
+
+# Normalization factor summary
+summary(dge.filtered.norm$samples$norm.factors)
+```
+
+# QC: After normalization
+## Density plot
+Density plots of log-intensity distribution of each library can be superposed 
+on a single graph for a better comparison between libraries and for 
+identification of libraries with weird distribution. 
+```{r density_plots}
+# set graphical parameter
+par(mfrow = c(1,3))
+
+# Normalize data for library size and expression intesntiy
+log2cpm.raw <- cpm(dge, log = TRUE)
+colnames(log2cpm.raw) <- dge$samples$sample
+log2cpm.filtered <- cpm(dge.filtered, log = TRUE)
+colnames(log2cpm.filtered) <- dge.filtered$samples$sample
+log2cpm.norm <- cpm(dge.filtered.norm, log = TRUE)
+colnames(log2cpm.norm) <- dge.filtered.norm$samples$sample
+
+# set colors
+colors <- treatment_colors[dge$samples$treatment]
+nsamples <- ncol(dge)
+
+# First, plot the first column of the log2cpm.raw density
+plot(density(log2cpm.raw[,1]), col = colors[1], lwd = 2, ylim = c(0,0.2), 
+     las = 2, main = "A. Raw", xlab = expression('Log'[2]~CPM))
+
+# For each sample plot the lcpm density
+for (i in 2:nsamples){
+  den <- density(log2cpm.raw[,i]) #subset each column
+  lines(den$x, den$y, col = colors[i], lwd = 2) 
+}
+
+# Second, plot log2cpm.filtered
+plot(density(log2cpm.filtered[,1]), col = colors[1], lwd = 2, ylim = c(0,0.2), 
+     las = 2, main = "B. Filtered", xlab = expression('Log'[2]~CPM))
+abline(v = cpm(3, log = TRUE), lty = 3)
+for (i in 2:nsamples) {
+  den <- density(log2cpm.filtered[,i])
+  lines(den$x, den$y, col = colors[i], lwd = 2)
+}
+
+# Third, plot log2cpm.norm
+plot(density(log2cpm.norm[,1]), col = colors[1], lwd = 2, ylim = c(0,0.2), 
+     las = 2, main = "C. Normalized", xlab = expression('Log'[2]~CPM))
+abline(v = cpm(3, log = TRUE), lty = 3)
+for (i in 2:nsamples) {
+  den <- density(log2cpm.norm[,i])
+  lines(den$x, den$y, col = colors[i], lwd = 2)
+}
+
+# save
+path <- paste0("../../results/postfiltering_QC/density_plots")
+saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
+remove(den)
+```
+
+## Boxplots
+```{r boxplots}
+# set parameters
+par(mfrow = c(1,3))
+
+# First look at dge.tech
+boxplot(log2cpm.raw, 
+        main="A. Raw", 
+        xlab="", 
+        ylab=expression('Counts per gene (Log'[2]~'CPM)'),
+        axes=FALSE,
+        col = colors
+        )
+axis(2) # 2 = left 
+axis(1, # 1 = below 
+     at = 1:nsamples, # points at which tick-marks should be drawn
+     labels = colnames(log2cpm.raw),
+     las = 2,
+     cex.axis = 0.8 # size of axis
+     )
+
+# Second, look at dge.filtered
+boxplot(log2cpm.filtered, 
+        main="B. Filtered", 
+        xlab="", 
+        ylab=expression('Counts per gene (Log'[2]~'CPM)'),
+        axes=FALSE,
+        col = colors
+        )
+axis(2)
+axis(1, at=1:nsamples,labels=colnames(log2cpm.filtered),las=2,cex.axis=0.8)
+
+# Third, look at dge.norm
+boxplot(log2cpm.norm, 
+        main="C. Normalized", 
+        xlab="", 
+        ylab=expression('Counts per gene (Log'[2]~'CPM)'),
+        axes=FALSE,
+        col = colors)
+axis(2)
+axis(1,at=1:nsamples,labels=colnames(log2cpm.norm),las=2,cex.axis=0.8)
+
+# save
+path <- paste0("../../results/postfiltering_QC/counts_per_gene_boxplot")
+saveToPDF(paste0(path, ".pdf"), width = 20, height = 6)
+#remove(log2cpm.raw, log2cpm.norm, log2cpm.filtered)
+```
+
+## CPM, FPKM, TPM
+```{r cpm_fpkm_tpm}
+# CPM, Counts Per Million
+# normalize by sequencing depth
+cpm <- cpm(dge.filtered.norm)
+path <- paste0("../../results/counts/CPM_postfiltering.tsv")
+write.table(cpm, path, quote = FALSE, sep = "\t")
+
+# FPKM, Fragments Per Kilobase Million
+# normalize by sequencing depth and then length
+exonic.length <- dge.filtered.norm$genes$exonic_length
+exonic.length.kb <- exonic.length / 1000
+fpkm <- cpm / exonic.length.kb
+fpkm <- sweep(cpm, 1, exonic.length.kb, FUN = '/') # 1 = row
+path <- paste0("../../results/counts/FPKM_postfiltering.tsv")
+write.table(fpkm, path, quote = FALSE, sep = "\t")
+
+# TPM, Transcripts Per Kilobase Million
+# normalize by length and then sequencing depth
+counts <- dge.filtered.norm$counts
+fpk <- counts / exonic.length.kb
+sum.col <- colSums(fpk) / 1000000
+tpm <- sweep(fpk, 2, sum.col, FUN = '/') # 2 = column
+path <- paste0("../../results/counts/TPM_postfiltering.tsv")
+write.table(tpm, path, quote = FALSE, sep = "\t")
+
+remove(counts,cpm,fpk,fpkm,tpm)
+```
+
+## Top transcripts
+```{r}
+counts <- as.data.frame(dge.filtered.norm$counts)
+df <- as.data.frame(rowSums(counts))
+colnames(df) <- "rsum"
+df$gene <- rownames(df)
+df <- df[order(df$rsum, decreasing = TRUE),]
+rownames(df) <- 1:nrow(df)
+head(df, 20)
+
+path <- paste0("../../results/counts/top_transcripts_counts_postfiltering.tsv")
+write.table(df, path, quote = FALSE, sep = "\t")
+```
+
+# Save
+```{r save_final_object, eval=FALSE}
+saveRDS(dge.filtered.norm, "../../rObjects/DGEList_filtered_normalized.rds")
+```
+
+```{r session_info}
+sessionInfo()
+```

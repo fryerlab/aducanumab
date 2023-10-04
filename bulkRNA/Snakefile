@@ -1,0 +1,151 @@
+configfile: "refs/config.json"
+
+
+# DIRECTORY VARIABLES
+#-----------------------------------------------------------------------------------------
+rawReadsDir = config["rawReads"]
+trimmedReadsDir = config["trimmedReads"]
+rawQCDir = config["rawQC"]
+trimmedQCDir = config["trimmedQC"]
+starDir = config["starAligned"]
+countsDir = config["featureCounts"]
+
+
+# RULE ALL
+#-----------------------------------------------------------------------------------------
+rule all:
+	input:
+	  expand(config["genomeDir"]),
+		expand(trimmedReadsDir + "{sample}_L001_R1_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L001_R2_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L002_R1_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L002_R2_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L003_R1_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L003_R2_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L004_R1_trim.fastq.gz", sample = config["allSamples"]),
+		expand(trimmedReadsDir + "{sample}_L004_R2_trim.fastq.gz", sample = config["allSamples"]),
+		expand(starDir + "{sample}.Aligned.sortedByCoord.out.bam", sample = config["allSamples"]),
+		expand(countsDir + "{sample}_gene.counts", sample = config["allSamples"]),
+		expand(countsDir + "{sample}_exon.counts", sample = config["allSamples"])
+
+
+# INDEX GENOME
+#-----------------------------------------------------------------------------------------
+rule index_genome:
+	input:
+		fa = config["Mmusculus.fa"],
+		gtf = config["Mmusculus.gtf"]
+	output:
+		starIndex = directory(config["genomeDir"]),
+	params:
+		genomeDir = config["genomeDir"],
+		threads = config["threads"]
+	shell:
+		"""
+		STAR --runMode genomeGenerate --runThreadN {params.threads} --genomeFastaFiles {input.fa} --sjdbGTFfile {input.gtf} --genomeDir {params.genomeDir}
+		"""
+
+
+
+# TRIM BBDUK
+#-----------------------------------------------------------------------------------------
+rule trim_bbduk:
+	input:
+		L1R1 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane1read1"] + "_001.fastq.gz",
+		L1R2 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane1read2"] + "_001.fastq.gz",
+		L2R1 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane2read1"] + "_001.fastq.gz",
+		L2R2 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane2read2"] + "_001.fastq.gz",
+		L3R1 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane3read1"] + "_001.fastq.gz",
+		L3R2 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane3read2"] + "_001.fastq.gz",
+		L4R1 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane4read1"] + "_001.fastq.gz",
+		L4R2 = lambda wildcards: rawReadsDir + config[wildcards.sample]["lane4read2"] + "_001.fastq.gz"
+	output:
+		trimL1R1 = trimmedReadsDir + "{sample}_L001_R1_trim.fastq.gz",
+		trimL1R2 = trimmedReadsDir + "{sample}_L001_R2_trim.fastq.gz",
+		trimL2R1 = trimmedReadsDir + "{sample}_L002_R1_trim.fastq.gz",
+		trimL2R2 = trimmedReadsDir + "{sample}_L002_R2_trim.fastq.gz",
+		trimL3R1 = trimmedReadsDir + "{sample}_L003_R1_trim.fastq.gz",
+		trimL3R2 = trimmedReadsDir + "{sample}_L003_R2_trim.fastq.gz",
+		trimL4R1 = trimmedReadsDir + "{sample}_L004_R1_trim.fastq.gz",
+		trimL4R2 = trimmedReadsDir + "{sample}_L004_R2_trim.fastq.gz"
+	params:
+	  threads = config["threads"]
+	shell:
+		"""
+		bbduk.sh -Xmx3g in1={input.L1R1} in2={input.L1R2} out1={output.trimL1R1} out2={output.trimL1R2} ref=refs/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo threads={params.threads} trimpolyg=1 trimpolya=1
+		bbduk.sh -Xmx3g in1={input.L2R1} in2={input.L2R2} out1={output.trimL2R1} out2={output.trimL2R2} ref=refs/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo threads={params.threads} trimpolyg=1 trimpolya=1
+		bbduk.sh -Xmx3g in1={input.L3R1} in2={input.L3R2} out1={output.trimL3R1} out2={output.trimL3R2} ref=refs/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo threads={params.threads} trimpolyg=1 trimpolya=1
+		bbduk.sh -Xmx3g in1={input.L4R1} in2={input.L4R2} out1={output.trimL4R1} out2={output.trimL4R2} ref=refs/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo threads={params.threads} trimpolyg=1 trimpolya=1
+		"""
+
+
+# ALIGN READS
+#-----------------------------------------------------------------------------------------
+rule align_reads:
+	input:
+		trimL1R1 = trimmedReadsDir + "{sample}_L001_R1_trim.fastq.gz",
+		trimL1R2 = trimmedReadsDir + "{sample}_L001_R2_trim.fastq.gz",
+		trimL2R1 = trimmedReadsDir + "{sample}_L002_R1_trim.fastq.gz",
+		trimL2R2 = trimmedReadsDir + "{sample}_L002_R2_trim.fastq.gz",
+		trimL3R1 = trimmedReadsDir + "{sample}_L003_R1_trim.fastq.gz",
+		trimL3R2 = trimmedReadsDir + "{sample}_L003_R2_trim.fastq.gz",
+		trimL4R1 = trimmedReadsDir + "{sample}_L004_R1_trim.fastq.gz",
+		trimL4R2 = trimmedReadsDir + "{sample}_L004_R2_trim.fastq.gz",
+		genomeDir = config["genomeDir"]
+	output:
+		aligned = (starDir + "{sample}.Aligned.sortedByCoord.out.bam")
+	params:
+		prefix = (starDir + "{sample}."),
+		threads = config["threads"]
+	shell:
+		"""
+		STAR --genomeDir {input.genomeDir} --runThreadN {params.threads} --readFilesCommand zcat --limitBAMsortRAM 31000000000 --readFilesIn {input.trimL1R1},{input.trimL2R1},{input.trimL3R1},{input.trimL4R1} {input.trimL1R2},{input.trimL2R2},{input.trimL3R2},{input.trimL4R2} --outFileNamePrefix {params.prefix} --outSAMtype BAM SortedByCoordinate
+		"""
+
+
+# FEATURE COUNTS
+#-----------------------------------------------------------------------------------------	
+rule gene_count:
+	input:
+		bam = starDir + "{sample}.Aligned.sortedByCoord.out.bam",
+		gtf = config["Mmusculus.gtf"]
+	output:
+		feature = countsDir + "{sample}_gene.counts"
+	params:
+	  threads = config["threads"]
+	shell:
+		"""
+		featureCounts -p --primary -t gene -T {params.threads} -s 2 -a {input.gtf} -o {output.feature} {input.bam}
+		
+		# KEY
+		# -p specify that input data contains paired-end reads
+		# --primary count primary alignments only, primary alignments are identified using bit 0x100 in SAM/BAM FLAG field
+		# -t specify feature type in annotation, exon by default
+		# -T number of the threads, 1 by default
+		# -s specify strandedness, 0 = unstranded, 1 = stranded, 2 = reversely stranded
+		# -a name of an annotation file. GTF/GFF format by default
+		# -o name of output file including read counts
+		"""
+
+rule exon_count:
+	input:
+		bam = starDir + "{sample}.Aligned.sortedByCoord.out.bam",
+		gtf = config["Mmusculus.gtf"]
+	output:
+		feature = countsDir + "{sample}_exon.counts"
+	params:
+	  threads = config["threads"]
+	shell:
+		"""
+		featureCounts -p --primary -t exon -T {params.threads} -s 2 -a {input.gtf} -o {output.feature} {input.bam}
+		
+		# KEY
+		# -p specify that input data contains paired-end reads
+		# --primary count primary alignments only, primary alignments are identified using bit 0x100 in SAM/BAM FLAG field
+		# -t specify feature type in annotation, exon by default
+		# -T number of the threads, 1 by default
+		# -s specify strandedness, 0 = unstranded, 1 = stranded, 2 = reversely stranded
+		# -a name of an annotation file. GTF/GFF format by default
+		# -o name of output file including read counts
+		"""
+

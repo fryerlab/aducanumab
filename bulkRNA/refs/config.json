@@ -1,0 +1,725 @@
+{
+    "DIRECTORIES",
+    "rawReads" : "/research/labs/neurology/fryer/projects/aducanumab/mouse/bulkRNA/",
+    "rawQC" : "rawQC/",
+    "trimmedReads" : "trimmedReads/",
+    "trimmedQC" : "trimmedQC/",
+    "starAligned" : "starAligned/",
+    "featureCounts" : "featureCounts/",
+    "genomeDir" : "refs/starGenomeDir/",
+
+    "FILES",
+    "Mmusculus.gtf" : "/research/labs/neurology/fryer/projects/references/mouse/refdata-gex-mm10-2020-A/genes/genes.gtf",
+    "Mmusculus.fa" : "/research/labs/neurology/fryer/projects/references/mouse/refdata-gex-mm10-2020-A/fasta/genome.fa",
+
+    "SAMPLE INFORMATION",
+    "allSamples": ['1024_IgG_S48', '1032_Adu_R_S11', '128_IgG_S24', '144_Adu_S16', '188_IgG_S44', '189_IgG_S55', '194_IgG_S27', '206_IgG_S60', '218_Adu_S34', '223_Adu_S41', '237_IgG_S7', '241_Adu_S22', '242_Adu_S62', '243_Adu_S33', '316_Adu_S31', '319_Adu_S8', '360_Adu_S40', '366_IgG_S61', '367_IgG_S4', '373_IgG_S58', '375_IgG_S39', '376_IgG_S50', '386_IgG_S12', '391_IgG_S3', '392_IgG_S19', '411_IgG_S57', '442_Adu_S28', '453_IgG_S49', '455_Adu_S20', '457_Adu_S6', '463_Adu_S18', '466_Adu_S25', '546_Adu_S56', '558_Adu_S17', '713_Adu_S10', '734_Adu_R_S63', '736_Adu_S59', '738_Adu_S21', '752_Adu_S46', '758_Adu_S64', '775_IgG_R_S36', '780_IgG_S26', '781_IgG_S14', '783_IgG_S15', '787_Adu_S54', '791_Adu_R_S5', '793_Adu_S43', '807_Adu_S35', '812_IgG_S23', '825_IgG_S53', '827_IgG_S38', '836_Adu_R_S13', '842_IgG_S9', '858_IgG_S32', '884_IgG_S37', '891_Adu_S1', '899_Adu_S52', '913_IgG_S30', '946_Adu_S29', '953_Adu_S51', '959_IgG_R_S45', '962_IgG_S2', '974_IgG_S47', '988_IgG_R_S42'],
+    "read": ['R1', 'R2'],
+
+    "CLUSTER INFORMATION",
+    "threads" : "20",
+
+    "1024_IgG_S48":{
+        "lane1read1": "1024_IgG_S48_L001_R1",
+        "lane1read2": "1024_IgG_S48_L001_R2",
+        "lane2read1": "1024_IgG_S48_L002_R1",
+        "lane2read2": "1024_IgG_S48_L002_R2",
+        "lane3read1": "1024_IgG_S48_L003_R1",
+        "lane3read2": "1024_IgG_S48_L003_R2",
+        "lane4read1": "1024_IgG_S48_L004_R1",
+        "lane4read2": "1024_IgG_S48_L004_R2"
+        },
+
+    "1032_Adu_R_S11":{
+        "lane1read1": "1032_Adu_R_S11_L001_R1",
+        "lane1read2": "1032_Adu_R_S11_L001_R2",
+        "lane2read1": "1032_Adu_R_S11_L002_R1",
+        "lane2read2": "1032_Adu_R_S11_L002_R2",
+        "lane3read1": "1032_Adu_R_S11_L003_R1",
+        "lane3read2": "1032_Adu_R_S11_L003_R2",
+        "lane4read1": "1032_Adu_R_S11_L004_R1",
+        "lane4read2": "1032_Adu_R_S11_L004_R2"
+        },
+
+    "128_IgG_S24":{
+        "lane1read1": "128_IgG_S24_L001_R1",
+        "lane1read2": "128_IgG_S24_L001_R2",
+        "lane2read1": "128_IgG_S24_L002_R1",
+        "lane2read2": "128_IgG_S24_L002_R2",
+        "lane3read1": "128_IgG_S24_L003_R1",
+        "lane3read2": "128_IgG_S24_L003_R2",
+        "lane4read1": "128_IgG_S24_L004_R1",
+        "lane4read2": "128_IgG_S24_L004_R2"
+        },
+
+    "144_Adu_S16":{
+        "lane1read1": "144_Adu_S16_L001_R1",
+        "lane1read2": "144_Adu_S16_L001_R2",
+        "lane2read1": "144_Adu_S16_L002_R1",
+        "lane2read2": "144_Adu_S16_L002_R2",
+        "lane3read1": "144_Adu_S16_L003_R1",
+        "lane3read2": "144_Adu_S16_L003_R2",
+        "lane4read1": "144_Adu_S16_L004_R1",
+        "lane4read2": "144_Adu_S16_L004_R2"
+        },
+
+    "188_IgG_S44":{
+        "lane1read1": "188_IgG_S44_L001_R1",
+        "lane1read2": "188_IgG_S44_L001_R2",
+        "lane2read1": "188_IgG_S44_L002_R1",
+        "lane2read2": "188_IgG_S44_L002_R2",
+        "lane3read1": "188_IgG_S44_L003_R1",
+        "lane3read2": "188_IgG_S44_L003_R2",
+        "lane4read1": "188_IgG_S44_L004_R1",
+        "lane4read2": "188_IgG_S44_L004_R2"
+        },
+
+    "189_IgG_S55":{
+        "lane1read1": "189_IgG_S55_L001_R1",
+        "lane1read2": "189_IgG_S55_L001_R2",
+        "lane2read1": "189_IgG_S55_L002_R1",
+        "lane2read2": "189_IgG_S55_L002_R2",
+        "lane3read1": "189_IgG_S55_L003_R1",
+        "lane3read2": "189_IgG_S55_L003_R2",
+        "lane4read1": "189_IgG_S55_L004_R1",
+        "lane4read2": "189_IgG_S55_L004_R2"
+        },
+
+    "194_IgG_S27":{
+        "lane1read1": "194_IgG_S27_L001_R1",
+        "lane1read2": "194_IgG_S27_L001_R2",
+        "lane2read1": "194_IgG_S27_L002_R1",
+        "lane2read2": "194_IgG_S27_L002_R2",
+        "lane3read1": "194_IgG_S27_L003_R1",
+        "lane3read2": "194_IgG_S27_L003_R2",
+        "lane4read1": "194_IgG_S27_L004_R1",
+        "lane4read2": "194_IgG_S27_L004_R2"
+        },
+
+    "206_IgG_S60":{
+        "lane1read1": "206_IgG_S60_L001_R1",
+        "lane1read2": "206_IgG_S60_L001_R2",
+        "lane2read1": "206_IgG_S60_L002_R1",
+        "lane2read2": "206_IgG_S60_L002_R2",
+        "lane3read1": "206_IgG_S60_L003_R1",
+        "lane3read2": "206_IgG_S60_L003_R2",
+        "lane4read1": "206_IgG_S60_L004_R1",
+        "lane4read2": "206_IgG_S60_L004_R2"
+        },
+
+    "218_Adu_S34":{
+        "lane1read1": "218_Adu_S34_L001_R1",
+        "lane1read2": "218_Adu_S34_L001_R2",
+        "lane2read1": "218_Adu_S34_L002_R1",
+        "lane2read2": "218_Adu_S34_L002_R2",
+        "lane3read1": "218_Adu_S34_L003_R1",
+        "lane3read2": "218_Adu_S34_L003_R2",
+        "lane4read1": "218_Adu_S34_L004_R1",
+        "lane4read2": "218_Adu_S34_L004_R2"
+        },
+
+    "223_Adu_S41":{
+        "lane1read1": "223_Adu_S41_L001_R1",
+        "lane1read2": "223_Adu_S41_L001_R2",
+        "lane2read1": "223_Adu_S41_L002_R1",
+        "lane2read2": "223_Adu_S41_L002_R2",
+        "lane3read1": "223_Adu_S41_L003_R1",
+        "lane3read2": "223_Adu_S41_L003_R2",
+        "lane4read1": "223_Adu_S41_L004_R1",
+        "lane4read2": "223_Adu_S41_L004_R2"
+        },
+
+    "237_IgG_S7":{
+        "lane1read1": "237_IgG_S7_L001_R1",
+        "lane1read2": "237_IgG_S7_L001_R2",
+        "lane2read1": "237_IgG_S7_L002_R1",
+        "lane2read2": "237_IgG_S7_L002_R2",
+        "lane3read1": "237_IgG_S7_L003_R1",
+        "lane3read2": "237_IgG_S7_L003_R2",
+        "lane4read1": "237_IgG_S7_L004_R1",
+        "lane4read2": "237_IgG_S7_L004_R2"
+        },
+
+    "241_Adu_S22":{
+        "lane1read1": "241_Adu_S22_L001_R1",
+        "lane1read2": "241_Adu_S22_L001_R2",
+        "lane2read1": "241_Adu_S22_L002_R1",
+        "lane2read2": "241_Adu_S22_L002_R2",
+        "lane3read1": "241_Adu_S22_L003_R1",
+        "lane3read2": "241_Adu_S22_L003_R2",
+        "lane4read1": "241_Adu_S22_L004_R1",
+        "lane4read2": "241_Adu_S22_L004_R2"
+        },
+
+    "242_Adu_S62":{
+        "lane1read1": "242_Adu_S62_L001_R1",
+        "lane1read2": "242_Adu_S62_L001_R2",
+        "lane2read1": "242_Adu_S62_L002_R1",
+        "lane2read2": "242_Adu_S62_L002_R2",
+        "lane3read1": "242_Adu_S62_L003_R1",
+        "lane3read2": "242_Adu_S62_L003_R2",
+        "lane4read1": "242_Adu_S62_L004_R1",
+        "lane4read2": "242_Adu_S62_L004_R2"
+        },
+
+    "243_Adu_S33":{
+        "lane1read1": "243_Adu_S33_L001_R1",
+        "lane1read2": "243_Adu_S33_L001_R2",
+        "lane2read1": "243_Adu_S33_L002_R1",
+        "lane2read2": "243_Adu_S33_L002_R2",
+        "lane3read1": "243_Adu_S33_L003_R1",
+        "lane3read2": "243_Adu_S33_L003_R2",
+        "lane4read1": "243_Adu_S33_L004_R1",
+        "lane4read2": "243_Adu_S33_L004_R2"
+        },
+
+    "316_Adu_S31":{
+        "lane1read1": "316_Adu_S31_L001_R1",
+        "lane1read2": "316_Adu_S31_L001_R2",
+        "lane2read1": "316_Adu_S31_L002_R1",
+        "lane2read2": "316_Adu_S31_L002_R2",
+        "lane3read1": "316_Adu_S31_L003_R1",
+        "lane3read2": "316_Adu_S31_L003_R2",
+        "lane4read1": "316_Adu_S31_L004_R1",
+        "lane4read2": "316_Adu_S31_L004_R2"
+        },
+
+    "319_Adu_S8":{
+        "lane1read1": "319_Adu_S8_L001_R1",
+        "lane1read2": "319_Adu_S8_L001_R2",
+        "lane2read1": "319_Adu_S8_L002_R1",
+        "lane2read2": "319_Adu_S8_L002_R2",
+        "lane3read1": "319_Adu_S8_L003_R1",
+        "lane3read2": "319_Adu_S8_L003_R2",
+        "lane4read1": "319_Adu_S8_L004_R1",
+        "lane4read2": "319_Adu_S8_L004_R2"
+        },
+
+    "360_Adu_S40":{
+        "lane1read1": "360_Adu_S40_L001_R1",
+        "lane1read2": "360_Adu_S40_L001_R2",
+        "lane2read1": "360_Adu_S40_L002_R1",
+        "lane2read2": "360_Adu_S40_L002_R2",
+        "lane3read1": "360_Adu_S40_L003_R1",
+        "lane3read2": "360_Adu_S40_L003_R2",
+        "lane4read1": "360_Adu_S40_L004_R1",
+        "lane4read2": "360_Adu_S40_L004_R2"
+        },
+
+    "366_IgG_S61":{
+        "lane1read1": "366_IgG_S61_L001_R1",
+        "lane1read2": "366_IgG_S61_L001_R2",
+        "lane2read1": "366_IgG_S61_L002_R1",
+        "lane2read2": "366_IgG_S61_L002_R2",
+        "lane3read1": "366_IgG_S61_L003_R1",
+        "lane3read2": "366_IgG_S61_L003_R2",
+        "lane4read1": "366_IgG_S61_L004_R1",
+        "lane4read2": "366_IgG_S61_L004_R2"
+        },
+
+    "367_IgG_S4":{
+        "lane1read1": "367_IgG_S4_L001_R1",
+        "lane1read2": "367_IgG_S4_L001_R2",
+        "lane2read1": "367_IgG_S4_L002_R1",
+        "lane2read2": "367_IgG_S4_L002_R2",
+        "lane3read1": "367_IgG_S4_L003_R1",
+        "lane3read2": "367_IgG_S4_L003_R2",
+        "lane4read1": "367_IgG_S4_L004_R1",
+        "lane4read2": "367_IgG_S4_L004_R2"
+        },
+
+    "373_IgG_S58":{
+        "lane1read1": "373_IgG_S58_L001_R1",
+        "lane1read2": "373_IgG_S58_L001_R2",
+        "lane2read1": "373_IgG_S58_L002_R1",
+        "lane2read2": "373_IgG_S58_L002_R2",
+        "lane3read1": "373_IgG_S58_L003_R1",
+        "lane3read2": "373_IgG_S58_L003_R2",
+        "lane4read1": "373_IgG_S58_L004_R1",
+        "lane4read2": "373_IgG_S58_L004_R2"
+        },
+
+    "375_IgG_S39":{
+        "lane1read1": "375_IgG_S39_L001_R1",
+        "lane1read2": "375_IgG_S39_L001_R2",
+        "lane2read1": "375_IgG_S39_L002_R1",
+        "lane2read2": "375_IgG_S39_L002_R2",
+        "lane3read1": "375_IgG_S39_L003_R1",
+        "lane3read2": "375_IgG_S39_L003_R2",
+        "lane4read1": "375_IgG_S39_L004_R1",
+        "lane4read2": "375_IgG_S39_L004_R2"
+        },
+
+    "376_IgG_S50":{
+        "lane1read1": "376_IgG_S50_L001_R1",
+        "lane1read2": "376_IgG_S50_L001_R2",
+        "lane2read1": "376_IgG_S50_L002_R1",
+        "lane2read2": "376_IgG_S50_L002_R2",
+        "lane3read1": "376_IgG_S50_L003_R1",
+        "lane3read2": "376_IgG_S50_L003_R2",
+        "lane4read1": "376_IgG_S50_L004_R1",
+        "lane4read2": "376_IgG_S50_L004_R2"
+        },
+
+    "386_IgG_S12":{
+        "lane1read1": "386_IgG_S12_L001_R1",
+        "lane1read2": "386_IgG_S12_L001_R2",
+        "lane2read1": "386_IgG_S12_L002_R1",
+        "lane2read2": "386_IgG_S12_L002_R2",
+        "lane3read1": "386_IgG_S12_L003_R1",
+        "lane3read2": "386_IgG_S12_L003_R2",
+        "lane4read1": "386_IgG_S12_L004_R1",
+        "lane4read2": "386_IgG_S12_L004_R2"
+        },
+
+    "391_IgG_S3":{
+        "lane1read1": "391_IgG_S3_L001_R1",
+        "lane1read2": "391_IgG_S3_L001_R2",
+        "lane2read1": "391_IgG_S3_L002_R1",
+        "lane2read2": "391_IgG_S3_L002_R2",
+        "lane3read1": "391_IgG_S3_L003_R1",
+        "lane3read2": "391_IgG_S3_L003_R2",
+        "lane4read1": "391_IgG_S3_L004_R1",
+        "lane4read2": "391_IgG_S3_L004_R2"
+        },
+
+    "392_IgG_S19":{
+        "lane1read1": "392_IgG_S19_L001_R1",
+        "lane1read2": "392_IgG_S19_L001_R2",
+        "lane2read1": "392_IgG_S19_L002_R1",
+        "lane2read2": "392_IgG_S19_L002_R2",
+        "lane3read1": "392_IgG_S19_L003_R1",
+        "lane3read2": "392_IgG_S19_L003_R2",
+        "lane4read1": "392_IgG_S19_L004_R1",
+        "lane4read2": "392_IgG_S19_L004_R2"
+        },
+
+    "411_IgG_S57":{
+        "lane1read1": "411_IgG_S57_L001_R1",
+        "lane1read2": "411_IgG_S57_L001_R2",
+        "lane2read1": "411_IgG_S57_L002_R1",
+        "lane2read2": "411_IgG_S57_L002_R2",
+        "lane3read1": "411_IgG_S57_L003_R1",
+        "lane3read2": "411_IgG_S57_L003_R2",
+        "lane4read1": "411_IgG_S57_L004_R1",
+        "lane4read2": "411_IgG_S57_L004_R2"
+        },
+
+    "442_Adu_S28":{
+        "lane1read1": "442_Adu_S28_L001_R1",
+        "lane1read2": "442_Adu_S28_L001_R2",
+        "lane2read1": "442_Adu_S28_L002_R1",
+        "lane2read2": "442_Adu_S28_L002_R2",
+        "lane3read1": "442_Adu_S28_L003_R1",
+        "lane3read2": "442_Adu_S28_L003_R2",
+        "lane4read1": "442_Adu_S28_L004_R1",
+        "lane4read2": "442_Adu_S28_L004_R2"
+        },
+
+    "453_IgG_S49":{
+        "lane1read1": "453_IgG_S49_L001_R1",
+        "lane1read2": "453_IgG_S49_L001_R2",
+        "lane2read1": "453_IgG_S49_L002_R1",
+        "lane2read2": "453_IgG_S49_L002_R2",
+        "lane3read1": "453_IgG_S49_L003_R1",
+        "lane3read2": "453_IgG_S49_L003_R2",
+        "lane4read1": "453_IgG_S49_L004_R1",
+        "lane4read2": "453_IgG_S49_L004_R2"
+        },
+
+    "455_Adu_S20":{
+        "lane1read1": "455_Adu_S20_L001_R1",
+        "lane1read2": "455_Adu_S20_L001_R2",
+        "lane2read1": "455_Adu_S20_L002_R1",
+        "lane2read2": "455_Adu_S20_L002_R2",
+        "lane3read1": "455_Adu_S20_L003_R1",
+        "lane3read2": "455_Adu_S20_L003_R2",
+        "lane4read1": "455_Adu_S20_L004_R1",
+        "lane4read2": "455_Adu_S20_L004_R2"
+        },
+
+    "457_Adu_S6":{
+        "lane1read1": "457_Adu_S6_L001_R1",
+        "lane1read2": "457_Adu_S6_L001_R2",
+        "lane2read1": "457_Adu_S6_L002_R1",
+        "lane2read2": "457_Adu_S6_L002_R2",
+        "lane3read1": "457_Adu_S6_L003_R1",
+        "lane3read2": "457_Adu_S6_L003_R2",
+        "lane4read1": "457_Adu_S6_L004_R1",
+        "lane4read2": "457_Adu_S6_L004_R2"
+        },
+
+    "463_Adu_S18":{
+        "lane1read1": "463_Adu_S18_L001_R1",
+        "lane1read2": "463_Adu_S18_L001_R2",
+        "lane2read1": "463_Adu_S18_L002_R1",
+        "lane2read2": "463_Adu_S18_L002_R2",
+        "lane3read1": "463_Adu_S18_L003_R1",
+        "lane3read2": "463_Adu_S18_L003_R2",
+        "lane4read1": "463_Adu_S18_L004_R1",
+        "lane4read2": "463_Adu_S18_L004_R2"
+        },
+
+    "466_Adu_S25":{
+        "lane1read1": "466_Adu_S25_L001_R1",
+        "lane1read2": "466_Adu_S25_L001_R2",
+        "lane2read1": "466_Adu_S25_L002_R1",
+        "lane2read2": "466_Adu_S25_L002_R2",
+        "lane3read1": "466_Adu_S25_L003_R1",
+        "lane3read2": "466_Adu_S25_L003_R2",
+        "lane4read1": "466_Adu_S25_L004_R1",
+        "lane4read2": "466_Adu_S25_L004_R2"
+        },
+
+    "546_Adu_S56":{
+        "lane1read1": "546_Adu_S56_L001_R1",
+        "lane1read2": "546_Adu_S56_L001_R2",
+        "lane2read1": "546_Adu_S56_L002_R1",
+        "lane2read2": "546_Adu_S56_L002_R2",
+        "lane3read1": "546_Adu_S56_L003_R1",
+        "lane3read2": "546_Adu_S56_L003_R2",
+        "lane4read1": "546_Adu_S56_L004_R1",
+        "lane4read2": "546_Adu_S56_L004_R2"
+        },
+
+    "558_Adu_S17":{
+        "lane1read1": "558_Adu_S17_L001_R1",
+        "lane1read2": "558_Adu_S17_L001_R2",
+        "lane2read1": "558_Adu_S17_L002_R1",
+        "lane2read2": "558_Adu_S17_L002_R2",
+        "lane3read1": "558_Adu_S17_L003_R1",
+        "lane3read2": "558_Adu_S17_L003_R2",
+        "lane4read1": "558_Adu_S17_L004_R1",
+        "lane4read2": "558_Adu_S17_L004_R2"
+        },
+
+    "713_Adu_S10":{
+        "lane1read1": "713_Adu_S10_L001_R1",
+        "lane1read2": "713_Adu_S10_L001_R2",
+        "lane2read1": "713_Adu_S10_L002_R1",
+        "lane2read2": "713_Adu_S10_L002_R2",
+        "lane3read1": "713_Adu_S10_L003_R1",
+        "lane3read2": "713_Adu_S10_L003_R2",
+        "lane4read1": "713_Adu_S10_L004_R1",
+        "lane4read2": "713_Adu_S10_L004_R2"
+        },
+
+    "734_Adu_R_S63":{
+        "lane1read1": "734_Adu_R_S63_L001_R1",
+        "lane1read2": "734_Adu_R_S63_L001_R2",
+        "lane2read1": "734_Adu_R_S63_L002_R1",
+        "lane2read2": "734_Adu_R_S63_L002_R2",
+        "lane3read1": "734_Adu_R_S63_L003_R1",
+        "lane3read2": "734_Adu_R_S63_L003_R2",
+        "lane4read1": "734_Adu_R_S63_L004_R1",
+        "lane4read2": "734_Adu_R_S63_L004_R2"
+        },
+
+    "736_Adu_S59":{
+        "lane1read1": "736_Adu_S59_L001_R1",
+        "lane1read2": "736_Adu_S59_L001_R2",
+        "lane2read1": "736_Adu_S59_L002_R1",
+        "lane2read2": "736_Adu_S59_L002_R2",
+        "lane3read1": "736_Adu_S59_L003_R1",
+        "lane3read2": "736_Adu_S59_L003_R2",
+        "lane4read1": "736_Adu_S59_L004_R1",
+        "lane4read2": "736_Adu_S59_L004_R2"
+        },
+
+    "738_Adu_S21":{
+        "lane1read1": "738_Adu_S21_L001_R1",
+        "lane1read2": "738_Adu_S21_L001_R2",
+        "lane2read1": "738_Adu_S21_L002_R1",
+        "lane2read2": "738_Adu_S21_L002_R2",
+        "lane3read1": "738_Adu_S21_L003_R1",
+        "lane3read2": "738_Adu_S21_L003_R2",
+        "lane4read1": "738_Adu_S21_L004_R1",
+        "lane4read2": "738_Adu_S21_L004_R2"
+        },
+
+    "752_Adu_S46":{
+        "lane1read1": "752_Adu_S46_L001_R1",
+        "lane1read2": "752_Adu_S46_L001_R2",
+        "lane2read1": "752_Adu_S46_L002_R1",
+        "lane2read2": "752_Adu_S46_L002_R2",
+        "lane3read1": "752_Adu_S46_L003_R1",
+        "lane3read2": "752_Adu_S46_L003_R2",
+        "lane4read1": "752_Adu_S46_L004_R1",
+        "lane4read2": "752_Adu_S46_L004_R2"
+        },
+
+    "758_Adu_S64":{
+        "lane1read1": "758_Adu_S64_L001_R1",
+        "lane1read2": "758_Adu_S64_L001_R2",
+        "lane2read1": "758_Adu_S64_L002_R1",
+        "lane2read2": "758_Adu_S64_L002_R2",
+        "lane3read1": "758_Adu_S64_L003_R1",
+        "lane3read2": "758_Adu_S64_L003_R2",
+        "lane4read1": "758_Adu_S64_L004_R1",
+        "lane4read2": "758_Adu_S64_L004_R2"
+        },
+
+    "775_IgG_R_S36":{
+        "lane1read1": "775_IgG_R_S36_L001_R1",
+        "lane1read2": "775_IgG_R_S36_L001_R2",
+        "lane2read1": "775_IgG_R_S36_L002_R1",
+        "lane2read2": "775_IgG_R_S36_L002_R2",
+        "lane3read1": "775_IgG_R_S36_L003_R1",
+        "lane3read2": "775_IgG_R_S36_L003_R2",
+        "lane4read1": "775_IgG_R_S36_L004_R1",
+        "lane4read2": "775_IgG_R_S36_L004_R2"
+        },
+
+    "780_IgG_S26":{
+        "lane1read1": "780_IgG_S26_L001_R1",
+        "lane1read2": "780_IgG_S26_L001_R2",
+        "lane2read1": "780_IgG_S26_L002_R1",
+        "lane2read2": "780_IgG_S26_L002_R2",
+        "lane3read1": "780_IgG_S26_L003_R1",
+        "lane3read2": "780_IgG_S26_L003_R2",
+        "lane4read1": "780_IgG_S26_L004_R1",
+        "lane4read2": "780_IgG_S26_L004_R2"
+        },
+
+    "781_IgG_S14":{
+        "lane1read1": "781_IgG_S14_L001_R1",
+        "lane1read2": "781_IgG_S14_L001_R2",
+        "lane2read1": "781_IgG_S14_L002_R1",
+        "lane2read2": "781_IgG_S14_L002_R2",
+        "lane3read1": "781_IgG_S14_L003_R1",
+        "lane3read2": "781_IgG_S14_L003_R2",
+        "lane4read1": "781_IgG_S14_L004_R1",
+        "lane4read2": "781_IgG_S14_L004_R2"
+        },
+
+    "783_IgG_S15":{
+        "lane1read1": "783_IgG_S15_L001_R1",
+        "lane1read2": "783_IgG_S15_L001_R2",
+        "lane2read1": "783_IgG_S15_L002_R1",
+        "lane2read2": "783_IgG_S15_L002_R2",
+        "lane3read1": "783_IgG_S15_L003_R1",
+        "lane3read2": "783_IgG_S15_L003_R2",
+        "lane4read1": "783_IgG_S15_L004_R1",
+        "lane4read2": "783_IgG_S15_L004_R2"
+        },
+
+    "787_Adu_S54":{
+        "lane1read1": "787_Adu_S54_L001_R1",
+        "lane1read2": "787_Adu_S54_L001_R2",
+        "lane2read1": "787_Adu_S54_L002_R1",
+        "lane2read2": "787_Adu_S54_L002_R2",
+        "lane3read1": "787_Adu_S54_L003_R1",
+        "lane3read2": "787_Adu_S54_L003_R2",
+        "lane4read1": "787_Adu_S54_L004_R1",
+        "lane4read2": "787_Adu_S54_L004_R2"
+        },
+
+    "791_Adu_R_S5":{
+        "lane1read1": "791_Adu_R_S5_L001_R1",
+        "lane1read2": "791_Adu_R_S5_L001_R2",
+        "lane2read1": "791_Adu_R_S5_L002_R1",
+        "lane2read2": "791_Adu_R_S5_L002_R2",
+        "lane3read1": "791_Adu_R_S5_L003_R1",
+        "lane3read2": "791_Adu_R_S5_L003_R2",
+        "lane4read1": "791_Adu_R_S5_L004_R1",
+        "lane4read2": "791_Adu_R_S5_L004_R2"
+        },
+
+    "793_Adu_S43":{
+        "lane1read1": "793_Adu_S43_L001_R1",
+        "lane1read2": "793_Adu_S43_L001_R2",
+        "lane2read1": "793_Adu_S43_L002_R1",
+        "lane2read2": "793_Adu_S43_L002_R2",
+        "lane3read1": "793_Adu_S43_L003_R1",
+        "lane3read2": "793_Adu_S43_L003_R2",
+        "lane4read1": "793_Adu_S43_L004_R1",
+        "lane4read2": "793_Adu_S43_L004_R2"
+        },
+
+    "807_Adu_S35":{
+        "lane1read1": "807_Adu_S35_L001_R1",
+        "lane1read2": "807_Adu_S35_L001_R2",
+        "lane2read1": "807_Adu_S35_L002_R1",
+        "lane2read2": "807_Adu_S35_L002_R2",
+        "lane3read1": "807_Adu_S35_L003_R1",
+        "lane3read2": "807_Adu_S35_L003_R2",
+        "lane4read1": "807_Adu_S35_L004_R1",
+        "lane4read2": "807_Adu_S35_L004_R2"
+        },
+
+    "812_IgG_S23":{
+        "lane1read1": "812_IgG_S23_L001_R1",
+        "lane1read2": "812_IgG_S23_L001_R2",
+        "lane2read1": "812_IgG_S23_L002_R1",
+        "lane2read2": "812_IgG_S23_L002_R2",
+        "lane3read1": "812_IgG_S23_L003_R1",
+        "lane3read2": "812_IgG_S23_L003_R2",
+        "lane4read1": "812_IgG_S23_L004_R1",
+        "lane4read2": "812_IgG_S23_L004_R2"
+        },
+
+    "825_IgG_S53":{
+        "lane1read1": "825_IgG_S53_L001_R1",
+        "lane1read2": "825_IgG_S53_L001_R2",
+        "lane2read1": "825_IgG_S53_L002_R1",
+        "lane2read2": "825_IgG_S53_L002_R2",
+        "lane3read1": "825_IgG_S53_L003_R1",
+        "lane3read2": "825_IgG_S53_L003_R2",
+        "lane4read1": "825_IgG_S53_L004_R1",
+        "lane4read2": "825_IgG_S53_L004_R2"
+        },
+
+    "827_IgG_S38":{
+        "lane1read1": "827_IgG_S38_L001_R1",
+        "lane1read2": "827_IgG_S38_L001_R2",
+        "lane2read1": "827_IgG_S38_L002_R1",
+        "lane2read2": "827_IgG_S38_L002_R2",
+        "lane3read1": "827_IgG_S38_L003_R1",
+        "lane3read2": "827_IgG_S38_L003_R2",
+        "lane4read1": "827_IgG_S38_L004_R1",
+        "lane4read2": "827_IgG_S38_L004_R2"
+        },
+
+    "836_Adu_R_S13":{
+        "lane1read1": "836_Adu_R_S13_L001_R1",
+        "lane1read2": "836_Adu_R_S13_L001_R2",
+        "lane2read1": "836_Adu_R_S13_L002_R1",
+        "lane2read2": "836_Adu_R_S13_L002_R2",
+        "lane3read1": "836_Adu_R_S13_L003_R1",
+        "lane3read2": "836_Adu_R_S13_L003_R2",
+        "lane4read1": "836_Adu_R_S13_L004_R1",
+        "lane4read2": "836_Adu_R_S13_L004_R2"
+        },
+
+    "842_IgG_S9":{
+        "lane1read1": "842_IgG_S9_L001_R1",
+        "lane1read2": "842_IgG_S9_L001_R2",
+        "lane2read1": "842_IgG_S9_L002_R1",
+        "lane2read2": "842_IgG_S9_L002_R2",
+        "lane3read1": "842_IgG_S9_L003_R1",
+        "lane3read2": "842_IgG_S9_L003_R2",
+        "lane4read1": "842_IgG_S9_L004_R1",
+        "lane4read2": "842_IgG_S9_L004_R2"
+        },
+
+    "858_IgG_S32":{
+        "lane1read1": "858_IgG_S32_L001_R1",
+        "lane1read2": "858_IgG_S32_L001_R2",
+        "lane2read1": "858_IgG_S32_L002_R1",
+        "lane2read2": "858_IgG_S32_L002_R2",
+        "lane3read1": "858_IgG_S32_L003_R1",
+        "lane3read2": "858_IgG_S32_L003_R2",
+        "lane4read1": "858_IgG_S32_L004_R1",
+        "lane4read2": "858_IgG_S32_L004_R2"
+        },
+
+    "884_IgG_S37":{
+        "lane1read1": "884_IgG_S37_L001_R1",
+        "lane1read2": "884_IgG_S37_L001_R2",
+        "lane2read1": "884_IgG_S37_L002_R1",
+        "lane2read2": "884_IgG_S37_L002_R2",
+        "lane3read1": "884_IgG_S37_L003_R1",
+        "lane3read2": "884_IgG_S37_L003_R2",
+        "lane4read1": "884_IgG_S37_L004_R1",
+        "lane4read2": "884_IgG_S37_L004_R2"
+        },
+
+    "891_Adu_S1":{
+        "lane1read1": "891_Adu_S1_L001_R1",
+        "lane1read2": "891_Adu_S1_L001_R2",
+        "lane2read1": "891_Adu_S1_L002_R1",
+        "lane2read2": "891_Adu_S1_L002_R2",
+        "lane3read1": "891_Adu_S1_L003_R1",
+        "lane3read2": "891_Adu_S1_L003_R2",
+        "lane4read1": "891_Adu_S1_L004_R1",
+        "lane4read2": "891_Adu_S1_L004_R2"
+        },
+
+    "899_Adu_S52":{
+        "lane1read1": "899_Adu_S52_L001_R1",
+        "lane1read2": "899_Adu_S52_L001_R2",
+        "lane2read1": "899_Adu_S52_L002_R1",
+        "lane2read2": "899_Adu_S52_L002_R2",
+        "lane3read1": "899_Adu_S52_L003_R1",
+        "lane3read2": "899_Adu_S52_L003_R2",
+        "lane4read1": "899_Adu_S52_L004_R1",
+        "lane4read2": "899_Adu_S52_L004_R2"
+        },
+
+    "913_IgG_S30":{
+        "lane1read1": "913_IgG_S30_L001_R1",
+        "lane1read2": "913_IgG_S30_L001_R2",
+        "lane2read1": "913_IgG_S30_L002_R1",
+        "lane2read2": "913_IgG_S30_L002_R2",
+        "lane3read1": "913_IgG_S30_L003_R1",
+        "lane3read2": "913_IgG_S30_L003_R2",
+        "lane4read1": "913_IgG_S30_L004_R1",
+        "lane4read2": "913_IgG_S30_L004_R2"
+        },
+
+    "946_Adu_S29":{
+        "lane1read1": "946_Adu_S29_L001_R1",
+        "lane1read2": "946_Adu_S29_L001_R2",
+        "lane2read1": "946_Adu_S29_L002_R1",
+        "lane2read2": "946_Adu_S29_L002_R2",
+        "lane3read1": "946_Adu_S29_L003_R1",
+        "lane3read2": "946_Adu_S29_L003_R2",
+        "lane4read1": "946_Adu_S29_L004_R1",
+        "lane4read2": "946_Adu_S29_L004_R2"
+        },
+
+    "953_Adu_S51":{
+        "lane1read1": "953_Adu_S51_L001_R1",
+        "lane1read2": "953_Adu_S51_L001_R2",
+        "lane2read1": "953_Adu_S51_L002_R1",
+        "lane2read2": "953_Adu_S51_L002_R2",
+        "lane3read1": "953_Adu_S51_L003_R1",
+        "lane3read2": "953_Adu_S51_L003_R2",
+        "lane4read1": "953_Adu_S51_L004_R1",
+        "lane4read2": "953_Adu_S51_L004_R2"
+        },
+
+    "959_IgG_R_S45":{
+        "lane1read1": "959_IgG_R_S45_L001_R1",
+        "lane1read2": "959_IgG_R_S45_L001_R2",
+        "lane2read1": "959_IgG_R_S45_L002_R1",
+        "lane2read2": "959_IgG_R_S45_L002_R2",
+        "lane3read1": "959_IgG_R_S45_L003_R1",
+        "lane3read2": "959_IgG_R_S45_L003_R2",
+        "lane4read1": "959_IgG_R_S45_L004_R1",
+        "lane4read2": "959_IgG_R_S45_L004_R2"
+        },
+
+    "962_IgG_S2":{
+        "lane1read1": "962_IgG_S2_L001_R1",
+        "lane1read2": "962_IgG_S2_L001_R2",
+        "lane2read1": "962_IgG_S2_L002_R1",
+        "lane2read2": "962_IgG_S2_L002_R2",
+        "lane3read1": "962_IgG_S2_L003_R1",
+        "lane3read2": "962_IgG_S2_L003_R2",
+        "lane4read1": "962_IgG_S2_L004_R1",
+        "lane4read2": "962_IgG_S2_L004_R2"
+        },
+
+    "974_IgG_S47":{
+        "lane1read1": "974_IgG_S47_L001_R1",
+        "lane1read2": "974_IgG_S47_L001_R2",
+        "lane2read1": "974_IgG_S47_L002_R1",
+        "lane2read2": "974_IgG_S47_L002_R2",
+        "lane3read1": "974_IgG_S47_L003_R1",
+        "lane3read2": "974_IgG_S47_L003_R2",
+        "lane4read1": "974_IgG_S47_L004_R1",
+        "lane4read2": "974_IgG_S47_L004_R2"
+        },
+
+    "988_IgG_R_S42":{
+        "lane1read1": "988_IgG_R_S42_L001_R1",
+        "lane1read2": "988_IgG_R_S42_L001_R2",
+        "lane2read1": "988_IgG_R_S42_L002_R1",
+        "lane2read2": "988_IgG_R_S42_L002_R2",
+        "lane3read1": "988_IgG_R_S42_L003_R1",
+        "lane3read2": "988_IgG_R_S42_L003_R2",
+        "lane4read1": "988_IgG_R_S42_L004_R1",
+        "lane4read2": "988_IgG_R_S42_L004_R2"
+        }
+}
