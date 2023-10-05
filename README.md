@@ -5,7 +5,7 @@ This repository contains scripts for analyzing the single cell and bulk RNA sequ
 insert abstract
 
 ## Contact information
-kk
+
 | Contact | Email | Scope |
 | --- | --- | --- |
 | Mika Cadiz | cadiz.mika@mayo.edu | scRNA analysis |
