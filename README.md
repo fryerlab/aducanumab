@@ -1,8 +1,9 @@
 # aducanumab
 ## Overview
-This repository contains scripts for analyzing the single cell and bulk RNA sequencing data from <insert paper title>. Navigate to the **bulkRNA** or **scRNA** for more information on each project.
+This repository contains scripts for analyzing the single cell and bulk RNA sequencing data from (insert paper title). Navigate to the **bulkRNA** or **scRNA** for more information on each project.
 
-<insert abstract>
+insert abstract
+
 ## Contact information
 | Contact | Email | Scope |
 | --- | --- | --- |
