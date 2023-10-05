@@ -1,14 +1,22 @@
 # Bulk RNA-Seq Analysis
 ## 1. Experiment overview
-Mouse hemibrain was collected from 63 samples. The different groups are below.
-- 4 biological replicates of 3 weeks (2 doses) IgG
-- 4 biological replicates of 3 weeks (2 doses) Aducanumab
-- 4 biological replicates of 5 weeks (4 doses) IgG
-- 4 biological replicates of 5 weeks (4 doses) Aducanumab
-- 4 biological replicates of 19 weeks (washout) IgG
-- 4 biological replicates of 19 weeks (washout) Aducanumab
-- 4 biological replicates of 34 weeks (washout) IgG
-- 3 biological replicates of 34 weeks (washout) Aducanumab
+Mouse hemibrain was collected from 64 samples. There were 16 groups total based on treatment given, weeks on treatment, and sex.
+- 4 biological replicates of 3 weeks (2 doses) IgG Female
+- 4 biological replicates of 3 weeks (2 doses) IgG Male
+- 4 biological replicates of 3 weeks (2 doses) Aducanumab Female
+- 4 biological replicates of 3 weeks (2 doses) Aducanumab Male
+- 4 biological replicates of 5 weeks (4 doses) IgG Female
+- 4 biological replicates of 5 weeks (4 doses) IgG Male
+- 4 biological replicates of 5 weeks (4 doses) Aducanumab Female
+- 4 biological replicates of 5 weeks (4 doses) Aducanumab Male
+- 4 biological replicates of 19 weeks (washout) IgG Female
+- 4 biological replicates of 19 weeks (washout) IgG Male
+- 4 biological replicates of 19 weeks (washout) Aducanumab Female
+- 4 biological replicates of 19 weeks (washout) Aducanumab Male
+- 4 biological replicates of 34 weeks (washout) IgG Female
+- 4 biological replicates of 34 weeks (washout) IgG Male
+- 4 biological replicates of 34 weeks (washout) Aducanumab Female
+- 4 biological replicates of 34 weeks (washout) Aducanumab Male
 ## 2. Sample preparation
 63 samples were sent for bulk RNA sequencing at the Mayo Clinic Genome Analysis Core. Samples were preped with ??? kit. Samples were sequenced to ???? 100 bp paired-end reads on the  ???.
 ## 3. Read processing
