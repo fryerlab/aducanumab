@@ -18,6 +18,7 @@ Mouse hemibrain was collected from 63 samples. The different groups are below.
   - trim
   - align
   - featureCounts
-- For the exact commands used during preprocessing take a look at the Snakemake file in this directory. 
+- For the exact commands used during preprocessing take a look at the **Snakemake** file in this directory. 
 - The **scripts/01_preprocessing** folder cotains everything used to setup and exectue the snakemake pipline.
 ## 4. R Analysis
+- The **scripts/02_R_analysis** folder contains all R scripts used to filter, normalize, and perform differential expression of the counts data.
