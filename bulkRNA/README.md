@@ -1,5 +1,6 @@
 # Bulk RNA-Seq Analysis
 ## Experiment overview
+Mouse hemibrain was collected from the following groups.
 - 4 biological replicates of 3 weeks (2 doses) IgG
 - 4 biological replicates of 3 weeks (2 doses) Aducanumab
 - 4 biological replicates of 5 weeks (4 doses) IgG
