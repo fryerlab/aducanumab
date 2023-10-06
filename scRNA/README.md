@@ -1,6 +1,6 @@
 # Bulk RNA-Seq Analysis
 ## 1. Experiment overview
-Mouse **?hemibrain?** was collected from 10 samples. There were 4 groups total based on treatment given and sex.
+Hemiforebrain was collected from 10 mice. There were 4 groups total based on treatment given and sex.
 - 3 biological replicates of IgG Female
 - 2 biological replicates of IgG Male
 - 3 biological replicates of Aducanumab Female
