@@ -9,7 +9,7 @@ insert abstract
 
 | Contact | Email | Scope |
 | --- | --- | --- |
-| Mika Cadiz | cadiz.mika@mayo.edu | scRNA analysis, manuscript |
-| Kennedi Todd | todd.kennedi@mayo.edu | bulkRNA analysis |
+| Mika Cadiz | cadiz.mika@mayo.edu | scRNAseq analysis, manuscript |
+| Kennedi Todd | todd.kennedi@mayo.edu | bulkRNAseq analysis |
 
 ## Citation
