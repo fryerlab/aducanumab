@@ -12,4 +12,7 @@ Hemiforebrains were dissociated in Accutase. Debris was removed with Miltenyi de
 - The **scripts/01_cellranger** folder contains all scripts used for preprocessing reads.
 ## 4. R Analysis
 - Only **? x samples ?** were used for the R analysis.
+- Only 4 samples were used in the R analysis. All male samples were used. There were several GEM chip failures with the female samples.
+  - 2 biological replicates of IgG Male
+  - 2 biological replicates of Aducanumab Male 
 - The **scripts/02_R_analysis** folder contains all R scripts used to filter, normalize, and perform differential expression of the counts data.
