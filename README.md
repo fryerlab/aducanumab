@@ -1,6 +1,6 @@
 # aducanumab
 ## Overview
-This repository contains scripts for analyzing the single cell and bulk RNA sequencing data from _Aducanumab immunotherapy induces sustained microglial transcriptional and functional alterations_ (Cadiz et al., 2023). Navigate to the **bulkRNA** or **scRNA** directory for more information on each project.
+This repository contains scripts for analyzing the single cell and bulk RNA sequencing data from *Aducanumab immunotherapy induces sustained microglial transcriptional and functional alterations* (Cadiz et al., 2023). Navigate to the **bulkRNA** or **scRNA** directory for more information on each project.
 
 ## Abstract
 insert abstract
