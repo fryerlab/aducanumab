@@ -1,0 +1,273 @@
+```{r}
+library(tidyverse)
+library(Seurat)
+library(EnhancedVolcano)
+```
+
+```{r}
+Adu_Male_705A_counts <- Read10X("count/705A_Adu_Male/outs/filtered_feature_bc_matrix")
+
+Adu_Male_734A_counts <- Read10X("count/734A_Adu_Male/outs/filtered_feature_bc_matrix")
+
+IgG_Male_823A_counts <- Read10X("count/823A_IgG_Male/outs/filtered_feature_bc_matrix")
+
+IgG_Male_851A_counts <- Read10X("count/851A_IgG_Male/outs/filtered_feature_bc_matrix")
+
+```
+
+## Create Seurat object
+```{r}
+Adu.M.705A <- CreateSeuratObject(counts = Adu_Male_705A_counts, min.cells = 10, min.features = 200, project = "aducanumab")
+
+Adu.M.734A <- CreateSeuratObject(counts = Adu_Male_734A_counts, min.cells = 10, min.features = 200, project = "aducanumab")
+
+IgG.M.823A <- CreateSeuratObject(counts = IgG_Male_823A_counts, min.cells = 10, min.features = 200, project = "aducanumab")
+
+IgG.M.851A <- CreateSeuratObject(counts = IgG_Male_851A_counts, min.cells = 10, min.features = 200, project = "aducanumab")
+```
+
+##Get cell counts of each sample
+```{r}
+length(Adu.M.705A@active.ident)
+length(Adu.M.734A@active.ident)
+length(IgG.M.823A@active.ident)
+length(IgG.M.851A@active.ident)
+```
+
+##Downsample each sample to 6000 cells
+```{r}
+Adu.M.705A <- Adu.M.705A[, sample(colnames(Adu.M.705A), size =6000, replace=F)]
+Adu.M.734A <- Adu.M.734A[, sample(colnames(Adu.M.734A), size =6000, replace=F)]
+IgG.M.823A <- IgG.M.823A[, sample(colnames(IgG.M.823A), size =6000, replace=F)]
+IgG.M.851A <- IgG.M.851A[, sample(colnames(IgG.M.851A), size =6000, replace=F)]
+```
+
+#Create merged object
+```{r}
+  adu_male_downsampled_raw <- merge(x = Adu.M.705A, 
+                y = c(Adu.M.734A,IgG.M.823A, IgG.M.851A), 
+                add.cell.ids = c("Adu.M.705A","Adu.M.734A", "IgG.M.823A","IgG.M.851A"), 
+                project = "aducanumab")
+```
+
+## Add metadata
+```{r}
+sample_order <- c("Adu.M.705A","Adu.M.734A", "IgG.M.823A","IgG.M.851A")
+
+group_order <- c("IgG","Adu")
+
+# create sample column
+barcodes <- colnames(adu_male_downsampled_raw)
+sample <- str_match(barcodes, "(.+)_[ACGT]+-(\\d+)")[,2]
+adu_male_downsampled_raw$sample <- factor(sample, levels = sample_order)
+Idents(adu_male_downsampled_raw) <- adu_male_downsampled_raw$sample
+
+# group column
+group <- str_match(adu_male_downsampled_raw$sample, "([IgGAdu]+)\\.[FM].[0-9]+[AB]")[,2]
+adu_male_downsampled_raw$group <- factor(group, levels = group_order)
+
+# cell.complexity
+adu_male_downsampled_raw$cell.complexity <- log10(adu_male_downsampled_raw$nFeature_RNA) / log10(adu_male_downsampled_raw$nCount_RNA)
+
+# percent.mt
+adu_male_downsampled_raw$percent.mt <- PercentageFeatureSet(adu_male_downsampled_raw, pattern="^mt-")
+
+# percent.rb
+adu_male_downsampled_raw$percent.rb <- PercentageFeatureSet(adu_male_downsampled_raw, pattern="^Rp[sl]")
+
+# percent.hb
+adu_male_downsampled_raw$percent.hb <- PercentageFeatureSet(adu_male_downsampled_raw, pattern="^Hb[ba]-")
+
+# percent Ttr
+adu_male_downsampled_raw$percent.ttr <- PercentageFeatureSet(adu_male_downsampled_raw, features = "Ttr")
+```
+
+```{r}
+#save uncleaned object
+saveRDS(adu_male_downsampled_raw, "adu_male_downsampled_raw.rds")
+```
+
+```{r}
+adu_male_downsampled <- subset(adu_male_downsampled_raw, subset = nFeature_RNA > 200 & nFeature_RNA < 5000 & percent.mt < 5 & percent.rb < 10)
+```
+
+```{r}
+adu_male_downsampled <- SCTransform(adu_male_downsampled, vars.to.regress = c("percent.mt","percent.ttr","percent.rb")) %>%
+RunPCA() %>%
+FindNeighbors(dims = 1:30) %>%
+FindClusters(res = 0.4) %>%
+RunUMAP(dims = 1:30)
+```
+
+```{r}
+adu_male_downsampled[["percent.neuron"]] <- PercentageFeatureSet(adu_male_downsampled, features = c("Snap25","Syt1","Gad1","Gad2"))
+
+adu_male_downsampled[["percent.oligo"]] <- PercentageFeatureSet(adu_male_downsampled, features = c("Plp1","Mbp"))
+
+adu_male_downsampled[["percent.astro"]] <- PercentageFeatureSet(adu_male_downsampled, features = c("Clu","Gfap","Aqp4"))
+
+adu_male_downsampled[["percent.micro"]] <- PercentageFeatureSet(adu_male_downsampled, features = c("Hexb","C1qa"))
+
+adu_male_downsampled[["percent.opc"]] <- PercentageFeatureSet(adu_male_downsampled, features = c("Olig1", "Pdgfra","Vcan"))
+
+adu_male_downsampled[["percent.endo"]] <- PercentageFeatureSet(adu_male_downsampled, features=c("Rgs5", "Myl9", "Igfbp7", "Fn1", "Sox17", "Slc39a10"))
+
+VlnPlot(adu_male_downsampled, features=c("percent.micro", "percent.neuron","percent.oligo","percent.opc", "percent.astro", "percent.endo"), combine=F, pt.size=0)
+```
+```{r}
+DimPlot(adu_male_downsampled, reduction = "umap", label=T)
+DimPlot(adu_male_downsampled, reduction = "umap", group.by="sample", label=T)
+DimPlot(adu_male_downsampled, reduction = "umap", group.by="group")
+DimPlot(adu_male_downsampled, reduction = "umap", split.by="group", label=T)
+```
+
+```{r}
+saveRDS(adu_male_downsampled, "adu_male_downsampled.rds")
+```
+
+Note: did not continue cleaning other clusters, since our main interest is in the microglial subcluster.
+
+#Subset microglia
+```{r}
+adu_male_downsampled_micros <- subset(adu_male_downsampled, idents=3)
+```
+
+```{r}
+adu_male_downsampled_micros <- SCTransform(adu_male_downsampled_micros, vars.to.regress = c("percent.mt","percent.ttr","percent.rb")) %>%
+RunPCA() %>%
+FindNeighbors(dims = 1:30) %>%
+FindClusters(res = 0.4) %>%
+RunUMAP(dims = 1:30)
+```
+
+```{r}
+DimPlot(adu_male_downsampled_micros, reduction = "umap", label=T)
+```
+
+```{r}
+adu_male_downsampled_micros <- subset(adu_male_downsampled_micros, idents=c(0,1,2,4))
+
+adu_male_downsampled_micros <- subset(adu_male_downsampled_micros, subset = percent.oligo < 1 & percent.astro < 0.15 & percent.neuron < 0.5)
+```
+
+```{r}
+adu_male_downsampled_micros <- SCTransform(adu_male_downsampled_micros, vars.to.regress = c("percent.mt","percent.ttr","percent.rb")) %>%
+RunPCA() %>%
+FindNeighbors(dims = 1:30) %>%
+FindClusters(res = 0.1) %>%
+RunUMAP(dims = 1:30)
+```
+
+```{r}
+DimPlot(adu_male_downsampled_micros, reduction = "umap")
+```
+
+```{r}
+new.cluster.ids <- c("Homeostatic","Activated")
+names(new.cluster.ids) <- levels(adu_male_downsampled_micros)
+adu_male_downsampled_micros <- RenameIdents(adu_male_downsampled_micros, new.cluster.ids)
+```
+
+```{r}
+pdf("micros_umap.pdf",
+    width = 6,
+    height = 4)
+
+DimPlot(adu_male_downsampled_micros, reduction = "umap", label=T)
+
+dev.off()
+```
+
+```{r}
+VlnPlot(adu_male_downsampled_micros, features=c("Tmem119","P2ry12","Cst7","Apoe"), combine=F, assay="RNA",pt.size = 0)
+```
+
+#DAM vs. homeostatic DEGs
+```{r}
+adu_male_downsampled_micros_markers_clusters <- FindMarkers(adu_male_downsampled_micros, assay="SCT", ident.1="Activated")
+
+adu_male_downsampled_micros_markers_clusters
+```
+
+#Adu vs. IgG DEGs
+```{r}
+adu_male_downsampled_micros_markers <- FindMarkers(adu_male_downsampled_micros, assay="SCT", group.by = "group", ident.1 = "Adu", ident.2="IgG")
+
+adu_male_downsampled_micros_markers
+```
+
+```{r}
+adu_markers_positive <- adu_male_downsampled_micros_markers %>%
+  rownames_to_column("gene") %>%
+  filter(p_val_adj<0.05, avg_log2FC>0) %>%
+  arrange(p_val_adj) 
+
+adu_markers_negative <- adu_male_downsampled_micros_markers %>%
+  rownames_to_column("gene") %>%
+  filter(p_val_adj<0.05, avg_log2FC<0) %>%
+  arrange(p_val_adj) 
+
+write.csv(adu_markers_positive, "adu_markers_positive.csv", row.names = F)
+write.csv(adu_markers_negative, "adu_markers_negative.csv", row.names = F)
+```
+
+#Scale data for heatmap
+```{r}
+scaled_for_heatmap <- ScaleData(adu_male_downsampled_micros, features = rownames(adu_male_downsampled_micros))
+```
+
+```{r}
+top_30 <- adu_markers_positive %>%
+  slice_min(order_by = p_val_adj, n=30)
+
+pdf("adu_upregulated_DEGs_heatmap.pdf",
+    width = 4,
+    height = 4)
+
+DoHeatmap(scaled_for_heatmap, features = top_30$gene, group.by = "group")
+
+dev.off()
+```
+
+```{r}
+dam_markers <- adu_male_downsampled_micros_markers_clusters %>%
+  rownames_to_column("gene") %>%
+  filter(p_val_adj<0.05, avg_log2FC>0) %>%
+  arrange(p_val_adj)
+
+top_dam_markers <- dam_markers %>%
+  slice_min(order_by = p_val_adj, n=30)
+
+pdf("microglia_cluster_heatmap.pdf",
+    width = 6,
+    height = 4)
+
+DoHeatmap(scaled_for_heatmap, features = top_dam_markers$gene, group.by = "seurat_clusters")
+
+dev.off()
+```
+
+```{r}
+xtabs(~adu_male_downsampled_micros$sample+adu_male_downsampled_micros$seurat_clusters)
+xtabs(~adu_male_downsampled_micros$group+adu_male_downsampled_micros$seurat_clusters)
+table(adu_male_downsampled_micros$group)
+```
+IgG: 106/735 = 14.3% DAM
+Adu: 265/1323 = 20.0% DAM
+
+#Enrichment plot
+```{r}
+pdf("adu_vs_igg_enrichment.pdf",
+    width = 6,
+    height = 4)
+
+ggplot(adu_male_downsampled_micros@meta.data, aes(x = factor(group), fill = factor(seurat_clusters))) +
+  geom_bar(position="fill") + coord_flip()
+
+dev.off()
+```
+
+
+```{r}
+saveRDS(adu_male_downsampled_micros, "adu_male_downsampled_micros.rds")
+```
