@@ -6,7 +6,7 @@ Hemiforebrain was collected from 10 mice. There were 4 groups total based on tre
 - 3 biological replicates of Aducanumab Female
 - 2 biological replicates of Aducanumab Male
 ## 2. Sample preparation
-10 mouse **?hemibrains?** were harvested. **?Single cell suspension protocol?**. The Chromium Next GEM Single Cell 3' (dual index) kit was used to prepare libararies with the Chromium Controller. Libraries were sent for sequencing at the Mayo Clinic Genome Analysis Core. **getting seq info from core**.
+Hemiforebrains were dissociated in Accutase. Debris was removed with Miltenyi debris removal kit. Red blood cells were removed with Miltenyi RBC removal kit. The Chromium Next GEM Single Cell 3' (dual index) kit was used to prepare libararies with the Chromium Controller. Libraries were sent for sequencing at the Mayo Clinic Genome Analysis Core. **getting seq info from core**.
 ## 3. Read processing
 - Cellranger 6.1.1 was used to preprocess reads with mm10 reference.
 - The **scripts/01_cellranger** folder contains all scripts used for preprocessing reads.
