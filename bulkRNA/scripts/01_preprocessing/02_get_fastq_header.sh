@@ -3,10 +3,10 @@
 # Redirect output to save.
 
 # set variables
-files=/research/labs/neurology/fryer/m214960/aducanumab/bulkRNA/refs/fastq_file_list.txt
+files=/aducanumab/bulkRNA/refs/fastq_file_list.txt
 
 # go to fastq dir
-cd /research/labs/neurology/fryer/projects/aducanumab/mouse/bulkRNA
+cd /projects/aducanumab/mouse/bulkRNA
 
 # print fastq file name + header
 cat $files | while read file
