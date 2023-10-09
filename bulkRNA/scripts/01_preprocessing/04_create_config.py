@@ -17,7 +17,7 @@ with open('../../refs/sample_file_list.txt', 'r') as infile:
 # create header and write to outfile
 header = '''{{
     "DIRECTORIES",
-    "rawReads" : "/research/labs/neurology/fryer/projects/aducanumab/mouse/bulkRNA/",
+    "rawReads" : "/projects/aducanumab/mouse/bulkRNA/",
     "rawQC" : "rawQC/",
     "trimmedReads" : "trimmedReads/",
     "trimmedQC" : "trimmedQC/",
@@ -26,8 +26,8 @@ header = '''{{
     "genomeDir" : "refs/starGenomeDir/",
 
     "FILES",
-    "Mmusculus.gtf" : "/research/labs/neurology/fryer/projects/references/mouse/refdata-gex-mm10-2020-A/genes/genes.gtf",
-    "Mmusculus.fa" : "/research/labs/neurology/fryer/projects/references/mouse/refdata-gex-mm10-2020-A/fasta/genome.fa",
+    "Mmusculus.gtf" : "/projects/references/mouse/refdata-gex-mm10-2020-A/genes/genes.gtf",
+    "Mmusculus.fa" : "/projects/references/mouse/refdata-gex-mm10-2020-A/fasta/genome.fa",
 
     "SAMPLE INFORMATION",
     "allSamples": {0},
