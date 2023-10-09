@@ -20,12 +20,12 @@ Hemiforebrains were collected from 64 mice. There were 16 groups total based on 
 ## 2. Sample preparation
 Total RNA was extracted from hemiforebrains using **??? kit ???**. Total RNA was send to the Mayo Clinic Genome Analysis Core. RNA quality was assessed with Qubit and the Agilent Fragment Analyzer. Total RNA was cleaned-up with DNase I. 100 ng total RNA was used as input for the Illumina Stranded Total RNA Prep to create libraries. Final libraries were sequenced on the NovaSeq 6000 on S4 flow cell at 100 x 2 paired-end reads for an average of 170 M read pairs. Raw data is available **here**.
 ## 3. Read processing
-- A Snakemake pipeline was used to preprocess reads/FASTQ files.
+- A Snakemake pipeline was used to process FASTQ files.
 - Below are the rules in the Snakemake file in addition to a brief description.
-  - index_genome
-  - trim
-  - align
-  - featureCounts
+  - index_genome - create genome directory with STAR before alignment
+  - trim_bbduk - adapter trimming with BBDuk
+  - align_reads - read alignment with STAR
+  - gene_count - count gene features with featureCounts
 - For the exact commands used during preprocessing take a look at the **Snakemake** file in this directory. 
 - The **scripts/01_preprocessing** folder cotains everything used to setup and exectue the snakemake pipline.
 ## 4. R Analysis
