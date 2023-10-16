@@ -7,6 +7,11 @@ Aducanumab, an anti-amyloid beta (Aβ) antibody therapy for Alzheimer’s diseas
 
 ## Raw Data
 The raw data is available to download from the Sequence Read Archive (SRA) under PRJNA1026618.
+1. Obtain the run accessions of the samples you want to download. We have already created run accession lists (SraAccList.txt), metadata (), and biosample attributes () files available in the **scRNA/refs** folder and **bulkRNA/refs** folder.
+2. Install SRA Toolkit from https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit
+3. After SRA Toolkit is installed, run the commands below to download the raw FASTQ files.
+   ```prefetch --option-file SraAccList.txt```
+   ```
 ## Shiny Apps
 - https://fryerlab.shinyapps.io/aducanumab_mice_bulkRNAseq/
 - sc link
