@@ -11,7 +11,8 @@ The raw data is available to download from the Sequence Read Archive (SRA) under
 2. Install SRA Toolkit from https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit
 3. After SRA Toolkit is installed, run the commands below to download the raw FASTQ files.
    ```
-   prefetch --option-file SraAccList.txt
+   prefetch SRR123456
+   fastq-dump --split-3 SRR123456.sra
    ```
 ## Shiny Apps
 - https://fryerlab.shinyapps.io/aducanumab_mice_bulkRNAseq/
