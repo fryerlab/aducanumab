@@ -26,3 +26,6 @@ The raw data is available to download from the Sequence Read Archive (SRA) under
 | Kennedi Todd | todd.kennedi@mayo.edu | bulkRNAseq analysis |
 
 ## Citation
+```
+Mika P. Cadiz, Katelin A. Gibson, Kennedi T. Todd, David G. Nascari, Nashali Massa, Meredith T. Lilley, Kimberly C. Olney, Md Mamun Al-Amin, Hong Jiang, David M. Holtzman, John D. Fryer; Aducanumab anti-amyloid immunotherapy induces sustained microglial and immune alterations. J Exp Med 5 February 2024; 221 (2): e20231363. doi: https://doi.org/10.1084/jem.20231363
+```
