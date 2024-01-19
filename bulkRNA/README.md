@@ -18,7 +18,7 @@ Hemiforebrains were collected from 64 mice. There were 16 groups total based on 
 - 4 biological replicates of 34 weeks (washout) Aducanumab Female
 - 4 biological replicates of 34 weeks (washout) Aducanumab Male
 ## 2. Sample preparation
-Total RNA was extracted from hemiforebrains using **??? kit ???**. Total RNA was send to the Mayo Clinic Genome Analysis Core. RNA quality was assessed with Qubit and the Agilent Fragment Analyzer. Total RNA was cleaned-up with DNase I. 100 ng total RNA was used as input for the Illumina Stranded Total RNA Prep to create libraries. Final libraries were sequenced on the NovaSeq 6000 on S4 flow cell at 100 x 2 paired-end reads for an average of 170 M read pairs. Raw data is available **here**.
+Total RNA was extracted from hemiforebrains and sent to the Mayo Clinic Genome Analysis Core. RNA quality was assessed with Qubit and the Agilent Fragment Analyzer. Total RNA was cleaned-up with DNase I. 100 ng total RNA was used as input for the Illumina Stranded Total RNA Prep to create libraries. Final libraries were sequenced on the NovaSeq 6000 on S4 flow cell at 100 x 2 paired-end reads for an average of 170 M read pairs. Raw data is available **here**.
 ## 3. Read processing
 - A Snakemake pipeline was used to process FASTQ files.
 - Below are the rules in the Snakemake file in addition to a brief description.
